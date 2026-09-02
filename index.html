@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Storefront — store screenshot sizer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#E9ECEF;
+  --panel:#FFFFFF;
+  --ink:#101519;
+  --muted:#6B7682;
+  --line:#D3D9DF;
+  --accent:#C2185B;
+  --accent-soft:#FDE7EF;
+  --ok:#1B7F5A;
+  --radius:10px;
+  --sans:'Archivo', ui-sans-serif, system-ui, sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:15px;
+  line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:var(--accent)}
+header{
+  padding:22px 24px 18px;
+  border-bottom:1px solid var(--line);
+  display:flex;flex-wrap:wrap;gap:14px;align-items:baseline;justify-content:space-between;
+}
+h1{
+  margin:0;font-size:23px;font-weight:700;
+  font-stretch:118%;letter-spacing:-.015em;
+}
+header p{margin:0;color:var(--muted);font-size:13.5px;max-width:46ch}
+main{
+  display:grid;
+  grid-template-columns:minmax(320px,400px) 1fr;
+  gap:0;
+  align-items:start;
+}
+.controls{
+  padding:20px 24px 60px;
+  border-right:1px solid var(--line);
+  min-height:calc(100vh - 80px);
+}
+.stage{padding:20px 24px 60px}
+@media (max-width:900px){
+  main{grid-template-columns:1fr}
+  .controls{border-right:none;border-bottom:1px solid var(--line);min-height:0}
+}
+fieldset{border:none;margin:0 0 22px;padding:0}
+legend{
+  font-size:12.5px;font-weight:600;color:var(--muted);
+  font-stretch:112%;padding:0 0 8px;
+}
+label{display:block;font-size:13px;color:var(--muted);margin:0 0 4px}
+input[type=text],textarea,select{
+  width:100%;padding:8px 10px;font:inherit;font-size:14px;
+  border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);
+}
+textarea{resize:vertical;min-height:56px}
+input:focus,textarea:focus,select:focus,button:focus-visible{
+  outline:2px solid var(--accent);outline-offset:1px;
+}
+.row{display:flex;gap:10px;margin-bottom:12px}
+.row>*{flex:1;min-width:0}
+.drop{
+  border:1.5px dashed var(--line);border-radius:var(--radius);
+  background:var(--panel);padding:22px 16px;text-align:center;cursor:pointer;
+  color:var(--muted);font-size:13.5px;
+}
+.drop.hot{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+.slides{display:flex;gap:8px;overflow-x:auto;padding:10px 0 4px}
+.slides button{
+  flex:0 0 auto;width:52px;height:96px;border-radius:8px;border:1.5px solid var(--line);
+  background:var(--panel) center/cover no-repeat;padding:0;cursor:pointer;position:relative;
+}
+.slides button[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.slides .add{display:grid;place-items:center;font-size:22px;color:var(--muted);border-style:dashed}
+.slides .num{
+  position:absolute;left:3px;top:3px;background:rgba(16,21,25,.72);color:#fff;
+  font-size:10px;line-height:1;padding:3px 4px;border-radius:4px;
+}
+button.act{
+  font:inherit;font-size:14px;font-weight:600;padding:10px 14px;border-radius:8px;
+  border:1px solid var(--ink);background:var(--ink);color:#fff;cursor:pointer;
+}
+button.act.ghost{background:transparent;color:var(--ink)}
+button.act.go{background:var(--accent);border-color:var(--accent)}
+button.act[disabled]{opacity:.45;cursor:not-allowed}
+button.tiny{
+  font:inherit;font-size:12.5px;padding:5px 9px;border-radius:7px;
+  border:1px solid var(--line);background:var(--panel);cursor:pointer;color:var(--muted);
+}
+.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel)}
+.seg button{
+  flex:1;font:inherit;font-size:13px;padding:7px 4px;border:none;background:transparent;
+  cursor:pointer;color:var(--muted);
+}
+.seg button[aria-pressed=true]{background:var(--ink);color:#fff}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=color]{
+  width:100%;height:34px;padding:2px;border:1px solid var(--line);border-radius:8px;background:var(--panel);
+}
+.preview-wrap{
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  padding:18px;display:flex;justify-content:center;
+}
+#preview{
+  max-height:66vh;max-width:100%;height:auto;width:auto;
+  box-shadow:0 8px 30px rgba(16,21,25,.16);border-radius:2px;
+}
+.sizes{margin-top:22px}
+.sizegroup{margin-bottom:14px}
+.sizegroup h3{
+  margin:0 0 6px;font-size:13px;font-weight:600;font-stretch:112%;
+  display:flex;align-items:center;gap:10px;
+}
+.sizegroup h3 button{margin-left:auto}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{
+  display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
+  border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer;color:var(--muted);
+}
+.chip input{accent-color:var(--accent);margin:0}
+.chip[data-on=true]{color:var(--ink);border-color:#9AA5B1}
+.chip small{font-variant-numeric:tabular-nums;opacity:.7}
+.chip .req{color:var(--accent);font-size:11px;font-weight:600}
+.exportbar{
+  position:sticky;bottom:0;margin-top:18px;padding:14px 0 0;
+  background:linear-gradient(to top,var(--paper) 70%,rgba(233,236,239,0));
+  display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+}
+.status{font-size:13px;color:var(--muted)}
+.status.done{color:var(--ok)}
+.note{font-size:12.5px;color:var(--muted);margin:8px 0 0}
+.hint{font-size:12.5px;color:var(--muted);margin:-4px 0 12px}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Storefront</h1>
+    <p>Drop in a screenshot, write the caption, export every size the App Store and Google Play accept.</p>
+  </div>
+  <div class="status" id="head-status">Everything runs in your browser. Nothing uploads anywhere.</div>
+</header>
+
+<main>
+  <section class="controls">
+
+    <fieldset>
+      <legend>Screenshots</legend>
+      <div class="drop" id="drop" tabindex="0" role="button">
+        Drop images here, click to choose, or paste from the clipboard
+      </div>
+      <input type="file" id="file" accept="image/*" multiple hidden>
+      <div class="slides" id="slides"></div>
+      <div class="row" style="margin-top:4px">
+        <button class="tiny" id="dup">Duplicate</button>
+        <button class="tiny" id="del">Remove</button>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Caption</legend>
+      <label for="title">Headline</label>
+      <input type="text" id="title" placeholder="Track every set in one tap">
+      <div style="height:10px"></div>
+      <label for="sub">Supporting line</label>
+      <textarea id="sub" placeholder="Optional second line"></textarea>
+      <div style="height:12px"></div>
+      <label>Position</label>
+      <div class="seg" id="pos">
+        <button data-v="top" aria-pressed="true">Above</button>
+        <button data-v="bottom" aria-pressed="false">Below</button>
+      </div>
+      <div style="height:12px"></div>
+      <label>Alignment</label>
+      <div class="seg" id="align">
+        <button data-v="left" aria-pressed="false">Left</button>
+        <button data-v="center" aria-pressed="true">Center</button>
+        <button data-v="right" aria-pressed="false">Right</button>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Type</legend>
+      <label for="font">Typeface</label>
+      <select id="font">
+        <option value="Archivo">Archivo</option>
+        <option value="Helvetica Neue, Helvetica, Arial">Helvetica / Arial</option>
+        <option value="Georgia, serif">Georgia</option>
+        <option value="Trebuchet MS, sans-serif">Trebuchet</option>
+        <option value="Courier New, monospace">Courier</option>
+      </select>
+      <div style="height:12px"></div>
+      <div class="row">
+        <div>
+          <label for="tsize">Headline size <span id="tsize-v">5.6</span></label>
+          <input type="range" id="tsize" min="2.5" max="10" step="0.1" value="5.6">
+        </div>
+        <div>
+          <label for="ssize">Sub size <span id="ssize-v">3.2</span></label>
+          <input type="range" id="ssize" min="1.5" max="7" step="0.1" value="3.2">
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="tweight">Weight</label>
+          <select id="tweight">
+            <option value="400">Regular</option>
+            <option value="600" selected>Semibold</option>
+            <option value="700">Bold</option>
+          </select>
+        </div>
+        <div>
+          <label for="tcolor">Text colour</label>
+          <input type="color" id="tcolor" value="#101519">
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Canvas</legend>
+      <div class="row">
+        <div>
+          <label for="bg1">Background</label>
+          <input type="color" id="bg1" value="#EFF2F5">
+        </div>
+        <div>
+          <label for="bg2">Gradient to</label>
+          <input type="color" id="bg2" value="#D8DEE5">
+        </div>
+      </div>
+      <div class="seg" id="bgmode">
+        <button data-v="solid" aria-pressed="true">Solid</button>
+        <button data-v="gradient" aria-pressed="false">Gradient</button>
+      </div>
+      <div style="height:14px"></div>
+      <div class="row">
+        <div>
+          <label for="imgw">Screenshot width <span id="imgw-v">78</span>%</label>
+          <input type="range" id="imgw" min="40" max="100" step="1" value="78">
+        </div>
+        <div>
+          <label for="radius">Corner radius <span id="radius-v">3.6</span></label>
+          <input type="range" id="radius" min="0" max="10" step="0.2" value="3.6">
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="pad">Margin <span id="pad-v">7</span>%</label>
+          <input type="range" id="pad" min="0" max="16" step="0.5" value="7">
+        </div>
+        <div>
+          <label for="gap">Caption gap <span id="gap-v">6</span>%</label>
+          <input type="range" id="gap" min="0" max="20" step="0.5" value="6">
+        </div>
+      </div>
+      <label>Screenshot fit</label>
+      <div class="seg" id="fit">
+        <button data-v="contain" aria-pressed="true">Fit whole</button>
+        <button data-v="bleed" aria-pressed="false">Run off edge</button>
+      </div>
+      <div style="height:12px"></div>
+      <label class="chip" style="width:100%" data-on="true">
+        <input type="checkbox" id="shadow" checked> Drop shadow under the screenshot
+      </label>
+    </fieldset>
+
+  </section>
+
+  <section class="stage">
+    <div class="row" style="align-items:end;max-width:520px">
+      <div>
+        <label for="previewsize">Previewing</label>
+        <select id="previewsize"></select>
+      </div>
+      <div style="flex:0 0 auto">
+        <button class="tiny" id="prev">‹</button>
+        <button class="tiny" id="next">›</button>
+      </div>
+    </div>
+    <div class="preview-wrap" style="margin-top:10px">
+      <canvas id="preview" width="1320" height="2868"></canvas>
+    </div>
+
+    <div class="sizes" id="sizes"></div>
+
+    <div class="exportbar">
+      <button class="act go" id="export">Export selected sizes</button>
+      <div class="seg" style="flex:0 0 200px" id="fmt">
+        <button data-v="png" aria-pressed="true">PNG</button>
+        <button data-v="jpeg" aria-pressed="false">JPEG</button>
+      </div>
+      <span class="status" id="status"></span>
+    </div>
+    <p class="note">Both stores reject files with an alpha channel. PNG from a browser canvas is always 32-bit, so if App Store Connect or Play Console complains, re-export as JPEG — the background is opaque either way.</p>
+  </section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+const PRESETS = [
+  {g:'App Store — iPhone', dir:'AppStore/iPhone-6.9', label:'6.9″ · 17/16 Pro Max', w:1320, h:2868, on:true, req:true},
+  {g:'App Store — iPhone', dir:'AppStore/iPhone-6.9-alt', label:'6.9″ · Plus / older Pro Max', w:1290, h:2796, on:true},
+  {g:'App Store — iPhone', dir:'AppStore/iPhone-6.9-air', label:'6.9″ · iPhone Air', w:1260, h:2736, on:false},
+  {g:'App Store — iPhone', dir:'AppStore/iPhone-6.5', label:'6.5″ fallback', w:1284, h:2778, on:true, req:true},
+  {g:'App Store — iPhone', dir:'AppStore/iPhone-6.3', label:'6.3″', w:1206, h:2622, on:false},
+  {g:'App Store — iPhone', dir:'AppStore/iPhone-6.1', label:'6.1″', w:1179, h:2556, on:false},
+  {g:'App Store — iPhone', dir:'AppStore/iPhone-5.5', label:'5.5″', w:1242, h:2208, on:false},
+  {g:'App Store — iPad', dir:'AppStore/iPad-13', label:'13″ iPad', w:2064, h:2752, on:false, req:true},
+  {g:'App Store — iPad', dir:'AppStore/iPad-12.9', label:'12.9″ iPad', w:2048, h:2732, on:false},
+  {g:'Google Play', dir:'Play/phone', label:'Phone', w:1080, h:1920, on:true, req:true},
+  {g:'Google Play', dir:'Play/phone-hi', label:'Phone hi-res', w:1440, h:2560, on:false},
+  {g:'Google Play', dir:'Play/tablet-7', label:'7″ tablet', w:1080, h:1920, on:false},
+  {g:'Google Play', dir:'Play/tablet-10', label:'10″ tablet', w:1600, h:2560, on:false},
+  {g:'Google Play', dir:'Play/feature-graphic', label:'Feature graphic', w:1024, h:500, on:false, req:true},
+];
+
+const S = {
+  pos:'top', align:'center', font:'Archivo', tsize:5.6, ssize:3.2, tweight:'600',
+  tcolor:'#101519', bg1:'#EFF2F5', bg2:'#D8DEE5', bgmode:'solid',
+  imgw:78, radius:3.6, pad:7, gap:6, fit:'contain', shadow:true, fmt:'png'
+};
+
+let slides = [];      // {img, url, title, sub}
+let current = 0;
+
+const $ = id => document.getElementById(id);
+const preview = $('preview');
+const pctx = preview.getContext('2d');
+
+/* ---------- rendering ---------- */
+
+function wrap(ctx, text, maxW){
+  const out = [];
+  (text || '').split('\n').forEach(para => {
+    if(!para.trim()){ return; }
+    let line = '';
+    para.split(/\s+/).forEach(word => {
+      const test = line ? line + ' ' + word : word;
+      if(ctx.measureText(test).width > maxW && line){ out.push(line); line = word; }
+      else line = test;
+    });
+    if(line) out.push(line);
+  });
+  return out;
+}
+
+function roundRectPath(ctx, x, y, w, h, r){
+  r = Math.min(r, w/2, h/2);
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.arcTo(x+w, y, x+w, y+h, r);
+  ctx.arcTo(x+w, y+h, x, y+h, r);
+  ctx.arcTo(x, y+h, x, y, r);
+  ctx.arcTo(x, y, x+w, y, r);
+  ctx.closePath();
+}
+
+function render(ctx, W, H, slide){
+  ctx.save();
+  ctx.clearRect(0,0,W,H);
+
+  // background — always opaque
+  if(S.bgmode === 'gradient'){
+    const g = ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0, S.bg1); g.addColorStop(1, S.bg2);
+    ctx.fillStyle = g;
+  } else ctx.fillStyle = S.bg1;
+  ctx.fillRect(0,0,W,H);
+
+  const pad   = W * S.pad/100;
+  const gap   = W * S.gap/100;
+  const tSize = W * S.tsize/100;
+  const sSize = W * S.ssize/100;
+  const maxTW = W - pad*2;
+
+  ctx.textBaseline = 'top';
+  ctx.textAlign = S.align;
+
+  ctx.font = `${S.tweight} ${tSize}px ${S.font}`;
+  const tLines = wrap(ctx, slide ? slide.title : '', maxTW);
+  ctx.font = `400 ${sSize}px ${S.font}`;
+  const sLines = wrap(ctx, slide ? slide.sub : '', maxTW);
+
+  const tLH = tSize * 1.16, sLH = sSize * 1.4;
+  const inner = tLines.length * tLH + (sLines.length ? sSize*0.7 + sLines.length*sLH : 0);
+  const textH = (tLines.length || sLines.length) ? inner : 0;
+
+  const x = S.align === 'left' ? pad : S.align === 'right' ? W - pad : W/2;
+
+  // draw text
+  let ty = S.pos === 'top' ? pad : H - pad - textH;
+  ctx.fillStyle = S.tcolor;
+  ctx.font = `${S.tweight} ${tSize}px ${S.font}`;
+  tLines.forEach(l => { ctx.fillText(l, x, ty); ty += tLH; });
+  if(sLines.length){
+    ty += sSize*0.7;
+    ctx.font = `400 ${sSize}px ${S.font}`;
+    ctx.globalAlpha = 0.78;
+    sLines.forEach(l => { ctx.fillText(l, x, ty); ty += sLH; });
+    ctx.globalAlpha = 1;
+  }
+
+  // image region
+  const img = slide && slide.img;
+  if(img){
+    const capBlock = textH ? textH + gap : 0;
+    let top, avail;
+    if(S.pos === 'top'){
+      top = pad + capBlock;
+      avail = (S.fit === 'bleed' ? H : H - pad) - top;
+    } else {
+      top = pad;
+      avail = (H - pad - textH) - gap - top;
+    }
+    if(avail > 20){
+      let iw = W * S.imgw/100;
+      let ih = iw * img.naturalHeight / img.naturalWidth;
+      let clip = false;
+      if(ih > avail){
+        if(S.fit === 'contain'){ ih = avail; iw = ih * img.naturalWidth / img.naturalHeight; }
+        else clip = true;
+      }
+      const ix = (W - iw)/2;
+      const iy = (S.fit === 'bleed' && clip) ? top : top + (avail - Math.min(ih, avail))/2;
+      const r = W * S.radius/100;
+
+      ctx.save();
+      if(clip){
+        roundRectPath(ctx, ix, top, iw, avail, r);
+        ctx.clip();
+      }
+      if(S.shadow){
+        ctx.save();
+        ctx.shadowColor = 'rgba(16,21,25,0.28)';
+        ctx.shadowBlur = W*0.045;
+        ctx.shadowOffsetY = W*0.016;
+        ctx.fillStyle = '#000';
+        roundRectPath(ctx, ix, iy, iw, clip ? avail : ih, r);
+        ctx.fill();
+        ctx.restore();
+      }
+      if(!clip){ roundRectPath(ctx, ix, iy, iw, ih, r); ctx.clip(); }
+      ctx.drawImage(img, ix, iy, iw, ih);
+      ctx.restore();
+    }
+  }
+  ctx.restore();
+}
+
+/* ---------- preview ---------- */
+
+function drawPreview(){
+  const p = PRESETS[+$('previewsize').value] || PRESETS[0];
+  preview.width = p.w; preview.height = p.h;
+  render(pctx, p.w, p.h, slides[current]);
+}
+
+/* ---------- slides ---------- */
+
+function paintSlides(){
+  const box = $('slides');
+  box.innerHTML = '';
+  slides.forEach((s, i) => {
+    const b = document.createElement('button');
+    b.style.backgroundImage = `url(${s.url})`;
+    b.setAttribute('aria-pressed', i === current);
+    b.title = s.title || `Screenshot ${i+1}`;
+    b.innerHTML = `<span class="num">${i+1}</span>`;
+    b.onclick = () => { current = i; syncCaption(); paintSlides(); drawPreview(); };
+    box.appendChild(b);
+  });
+  const add = document.createElement('button');
+  add.className = 'add'; add.textContent = '+'; add.title = 'Add screenshots';
+  add.onclick = () => $('file').click();
+  box.appendChild(add);
+}
+
+function syncCaption(){
+  const s = slides[current];
+  $('title').value = s ? s.title : '';
+  $('sub').value   = s ? s.sub : '';
+}
+
+function addFiles(fileList){
+  const files = [...fileList].filter(f => f.type.startsWith('image/'));
+  let pending = files.length;
+  files.forEach(f => {
+    const url = URL.createObjectURL(f);
+    const img = new Image();
+    img.onload = () => {
+      slides.push({img, url, title:'', sub:''});
+      if(--pending === 0){ current = slides.length - 1; syncCaption(); paintSlides(); drawPreview(); }
+    };
+    img.onerror = () => { if(--pending === 0){ paintSlides(); drawPreview(); } };
+    img.src = url;
+  });
+}
+
+/* ---------- size checklist ---------- */
+
+function paintSizes(){
+  const wrapEl = $('sizes');
+  const groups = [...new Set(PRESETS.map(p => p.g))];
+  wrapEl.innerHTML = '';
+  groups.forEach(g => {
+    const sec = document.createElement('div');
+    sec.className = 'sizegroup';
+    const h = document.createElement('h3');
+    h.textContent = g;
+    const all = document.createElement('button');
+    all.className = 'tiny'; all.textContent = 'Select all';
+    all.onclick = () => {
+      PRESETS.forEach((p,i) => { if(p.g === g) p.on = true; });
+      paintSizes();
+    };
+    h.appendChild(all);
+    sec.appendChild(h);
+    const chips = document.createElement('div');
+    chips.className = 'chips';
+    PRESETS.forEach((p, i) => {
+      if(p.g !== g) return;
+      const l = document.createElement('label');
+      l.className = 'chip';
+      l.dataset.on = p.on;
+      l.innerHTML = `<input type="checkbox" ${p.on ? 'checked' : ''}>
+        <span>${p.label}</span><small>${p.w}×${p.h}</small>
+        ${p.req ? '<span class="req">required</span>' : ''}`;
+      l.querySelector('input').onchange = e => { p.on = e.target.checked; l.dataset.on = p.on; };
+      chips.appendChild(l);
+    });
+    sec.appendChild(chips);
+    wrapEl.appendChild(sec);
+  });
+}
+
+/* ---------- export ---------- */
+
+function canvasBlob(canvas){
+  return new Promise(res => canvas.toBlob(res,
+    S.fmt === 'jpeg' ? 'image/jpeg' : 'image/png',
+    S.fmt === 'jpeg' ? 0.95 : undefined));
+}
+
+function saveBlob(blob, name){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+
+async function exportAll(){
+  const chosen = PRESETS.filter(p => p.on);
+  const st = $('status');
+  if(!slides.length){ st.className = 'status'; st.textContent = 'Add a screenshot first.'; return; }
+  if(!chosen.length){ st.className = 'status'; st.textContent = 'Tick at least one size.'; return; }
+
+  $('export').disabled = true;
+  const ext = S.fmt === 'jpeg' ? 'jpg' : 'png';
+  const zip = window.JSZip ? new JSZip() : null;
+  const c = document.createElement('canvas');
+  const ctx = c.getContext('2d');
+  let done = 0, total = chosen.length * slides.length;
+
+  for(const p of chosen){
+    for(let i = 0; i < slides.length; i++){
+      c.width = p.w; c.height = p.h;
+      render(ctx, p.w, p.h, slides[i]);
+      const blob = await canvasBlob(c);
+      const name = `${String(i+1).padStart(2,'0')}_${p.w}x${p.h}.${ext}`;
+      if(zip) zip.file(`${p.dir}/${name}`, blob);
+      else saveBlob(blob, `${p.dir.replace(/\//g,'_')}_${name}`);
+      done++;
+      st.className = 'status';
+      st.textContent = `Rendering ${done} of ${total}…`;
+      await new Promise(r => setTimeout(r));
+    }
+  }
+
+  if(zip){
+    st.textContent = 'Zipping…';
+    const out = await zip.generateAsync({type:'blob'});
+    saveBlob(out, 'store-screenshots.zip');
+  }
+  st.className = 'status done';
+  st.textContent = `${total} image${total>1?'s':''} exported.`;
+  $('export').disabled = false;
+}
+
+/* ---------- wiring ---------- */
+
+function seg(id, key, after){
+  const el = $(id);
+  el.querySelectorAll('button').forEach(b => {
+    b.onclick = () => {
+      el.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b));
+      S[key] = b.dataset.v;
+      (after || drawPreview)();
+    };
+  });
+}
+function range(id, key){
+  const el = $(id), out = $(id + '-v');
+  el.oninput = () => { S[key] = +el.value; if(out) out.textContent = el.value; drawPreview(); };
+}
+function pick(id, key){ $(id).oninput = () => { S[key] = $(id).value; drawPreview(); }; }
+
+seg('pos','pos'); seg('align','align'); seg('bgmode','bgmode'); seg('fit','fit');
+seg('fmt','fmt', () => {});
+range('tsize','tsize'); range('ssize','ssize'); range('imgw','imgw');
+range('radius','radius'); range('pad','pad'); range('gap','gap');
+pick('tcolor','tcolor'); pick('bg1','bg1'); pick('bg2','bg2');
+$('font').onchange = () => { S.font = $('font').value; drawPreview(); };
+$('tweight').onchange = () => { S.tweight = $('tweight').value; drawPreview(); };
+$('shadow').onchange = e => {
+  S.shadow = e.target.checked;
+  e.target.closest('.chip').dataset.on = S.shadow;
+  drawPreview();
+};
+
+$('title').oninput = () => { if(slides[current]){ slides[current].title = $('title').value; drawPreview(); } };
+$('sub').oninput   = () => { if(slides[current]){ slides[current].sub   = $('sub').value;   drawPreview(); } };
+
+$('dup').onclick = () => {
+  const s = slides[current];
+  if(!s) return;
+  slides.splice(current+1, 0, {img:s.img, url:s.url, title:s.title, sub:s.sub});
+  current++; paintSlides(); syncCaption(); drawPreview();
+};
+$('del').onclick = () => {
+  if(!slides.length) return;
+  slides.splice(current, 1);
+  current = Math.max(0, current-1);
+  paintSlides(); syncCaption(); drawPreview();
+};
+$('prev').onclick = () => { if(slides.length){ current = (current-1+slides.length)%slides.length; paintSlides(); syncCaption(); drawPreview(); } };
+$('next').onclick = () => { if(slides.length){ current = (current+1)%slides.length; paintSlides(); syncCaption(); drawPreview(); } };
+
+const drop = $('drop');
+drop.onclick = () => $('file').click();
+drop.onkeydown = e => { if(e.key === 'Enter' || e.key === ' ') $('file').click(); };
+['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => {
+  e.preventDefault(); drop.classList.add('hot');
+}));
+['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => {
+  e.preventDefault(); drop.classList.remove('hot');
+}));
+drop.addEventListener('drop', e => addFiles(e.dataTransfer.files));
+$('file').onchange = e => { addFiles(e.target.files); e.target.value = ''; };
+window.addEventListener('paste', e => { if(e.clipboardData?.files?.length) addFiles(e.clipboardData.files); });
+
+const psel = $('previewsize');
+PRESETS.forEach((p, i) => {
+  const o = document.createElement('option');
+  o.value = i; o.textContent = `${p.label} — ${p.w}×${p.h}`;
+  psel.appendChild(o);
+});
+psel.onchange = drawPreview;
+$('export').onclick = exportAll;
+
+paintSizes();
+paintSlides();
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(drawPreview);
+drawPreview();
+</script>
+</body>
+</html>
