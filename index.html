@@ -196,15 +196,12 @@ input[type=color]{
 
     <fieldset>
       <legend>Type</legend>
-      <label for="font">Typeface</label>
-      <select id="font">
-        <option value="Archivo">Archivo</option>
-        <option value="Helvetica Neue, Helvetica, Arial">Helvetica / Arial</option>
-        <option value="Georgia, serif">Georgia</option>
-        <option value="Trebuchet MS, sans-serif">Trebuchet</option>
-        <option value="Courier New, monospace">Courier</option>
-      </select>
-      <div style="height:12px"></div>
+      <label for="font">Headline typeface</label>
+      <select id="font"></select>
+      <div style="height:10px"></div>
+      <label for="subfont">Supporting line typeface</label>
+      <select id="subfont"></select>
+      <p class="hint" id="fontnote">Web fonts load on demand — the preview redraws when the file arrives.</p>
       <div class="row">
         <div>
           <label for="tsize">Headline size <span id="tsize-v">5.6</span></label>
@@ -228,6 +225,21 @@ input[type=color]{
           <label for="tcolor">Text colour</label>
           <input type="color" id="tcolor" value="#101519">
         </div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="track">Tracking <span id="track-v">0</span></label>
+          <input type="range" id="track" min="-6" max="12" step="0.5" value="0">
+        </div>
+        <div>
+          <label for="lh">Line height <span id="lh-v">1.16</span></label>
+          <input type="range" id="lh" min="0.9" max="1.8" step="0.02" value="1.16">
+        </div>
+      </div>
+      <label>Headline case</label>
+      <div class="seg" id="caps">
+        <button data-v="none" aria-pressed="true">As typed</button>
+        <button data-v="upper" aria-pressed="false">UPPERCASE</button>
       </div>
     </fieldset>
 
@@ -329,11 +341,73 @@ const PRESETS = [
   {g:'Google Play', dir:'Play/feature-graphic', label:'Feature graphic', w:1024, h:500, on:false, req:true},
 ];
 
+/* label, CSS family name, Google css2 query (null = already installed / system), single-weight? */
+const FONTS = [
+  {c:'Sans', n:'Archivo',            q:'Archivo:wdth,wght@62..125,400..700'},
+  {c:'Sans', n:'Inter',              q:'Inter:wght@400..800'},
+  {c:'Sans', n:'Manrope',            q:'Manrope:wght@400..800'},
+  {c:'Sans', n:'DM Sans',            q:'DM+Sans:opsz,wght@9..40,400..1000'},
+  {c:'Sans', n:'Figtree',            q:'Figtree:wght@400..900'},
+  {c:'Sans', n:'Plus Jakarta Sans',  q:'Plus+Jakarta+Sans:wght@400..800'},
+  {c:'Sans', n:'Outfit',             q:'Outfit:wght@400..900'},
+  {c:'Sans', n:'Space Grotesk',      q:'Space+Grotesk:wght@400..700'},
+  {c:'Sans', n:'Sora',               q:'Sora:wght@400..800'},
+  {c:'Sans', n:'Work Sans',          q:'Work+Sans:wght@400..900'},
+  {c:'Sans', n:'Rubik',              q:'Rubik:wght@400..900'},
+  {c:'Sans', n:'Nunito',             q:'Nunito:wght@400..1000'},
+  {c:'Display', n:'Anton',           q:'Anton', one:true},
+  {c:'Display', n:'Bebas Neue',      q:'Bebas+Neue', one:true},
+  {c:'Display', n:'Oswald',          q:'Oswald:wght@400..700'},
+  {c:'Display', n:'Bricolage Grotesque', q:'Bricolage+Grotesque:opsz,wght@12..96,400..800'},
+  {c:'Serif', n:'Fraunces',          q:'Fraunces:opsz,wght@9..144,400..900'},
+  {c:'Serif', n:'Playfair Display',  q:'Playfair+Display:wght@400..900'},
+  {c:'Serif', n:'Instrument Serif',  q:'Instrument+Serif', one:true},
+  {c:'Serif', n:'Lora',              q:'Lora:wght@400..700'},
+  {c:'Serif', n:'Source Serif 4',    q:'Source+Serif+4:opsz,wght@8..60,400..900'},
+  {c:'Mono', n:'JetBrains Mono',     q:'JetBrains+Mono:wght@400..800'},
+  {c:'Mono', n:'IBM Plex Mono',      q:'IBM+Plex+Mono:wght@400;500;600;700'},
+  {c:'Mono', n:'Space Mono',         q:'Space+Mono:wght@400;700'},
+  {c:'On this device', n:'Helvetica Neue, Helvetica, Arial', label:'Helvetica / Arial', q:null},
+  {c:'On this device', n:'Georgia, serif', label:'Georgia', q:null},
+  {c:'On this device', n:'Times New Roman, serif', label:'Times', q:null},
+  {c:'On this device', n:'Trebuchet MS, sans-serif', label:'Trebuchet', q:null},
+  {c:'On this device', n:'Courier New, monospace', label:'Courier', q:null},
+];
+
 const S = {
-  pos:'top', align:'center', font:'Archivo', tsize:5.6, ssize:3.2, tweight:'600',
-  tcolor:'#101519', bg1:'#EFF2F5', bg2:'#D8DEE5', bgmode:'solid',
+  pos:'top', align:'center', font:'Archivo', subfont:'', tsize:5.6, ssize:3.2, tweight:'600',
+  tcolor:'#101519', bg1:'#EFF2F5', bg2:'#D8DEE5', bgmode:'solid', track:0, lh:1.16, caps:'none',
   imgw:78, radius:3.6, pad:7, gap:6, fit:'contain', shadow:true, fmt:'png'
 };
+
+/* ---------- on-demand web fonts ---------- */
+
+const loaded = new Set(['Archivo']);
+
+function ensureFont(name){
+  const f = FONTS.find(x => x.n === name);
+  if(!f || !f.q || loaded.has(name)) return Promise.resolve();
+  loaded.add(name);
+  return new Promise(res => {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = `https://fonts.googleapis.com/css2?family=${f.q}&display=swap`;
+    link.onload = link.onerror = () => {
+      const weights = f.one ? ['400'] : ['400','600','700'];
+      Promise.all(weights.map(w =>
+        document.fonts.load(`${w} 64px "${name}"`).catch(() => {})
+      )).then(res, res);
+    };
+    document.head.appendChild(link);
+  });
+}
+
+function fontStack(name){
+  const f = FONTS.find(x => x.n === name);
+  if(!f) return name;
+  if(!f.q) return name;                       // already a stack
+  return `"${name}", ${f.c === 'Serif' ? 'serif' : f.c === 'Mono' ? 'monospace' : 'sans-serif'}`;
+}
 
 let slides = [];      // {img, url, title, sub}
 let current = 0;
@@ -391,12 +465,22 @@ function render(ctx, W, H, slide){
   ctx.textBaseline = 'top';
   ctx.textAlign = S.align;
 
-  ctx.font = `${S.tweight} ${tSize}px ${S.font}`;
-  const tLines = wrap(ctx, slide ? slide.title : '', maxTW);
-  ctx.font = `400 ${sSize}px ${S.font}`;
+  const headFace = fontStack(S.font);
+  const subFace  = fontStack(S.subfont || S.font);
+  const tracking = W * S.track/1000;
+  const hasTracking = 'letterSpacing' in ctx;
+
+  let titleText = slide ? slide.title : '';
+  if(S.caps === 'upper') titleText = (titleText || '').toUpperCase();
+
+  if(hasTracking) ctx.letterSpacing = `${tracking}px`;
+  ctx.font = `${S.tweight} ${tSize}px ${headFace}`;
+  const tLines = wrap(ctx, titleText, maxTW);
+  if(hasTracking) ctx.letterSpacing = '0px';
+  ctx.font = `400 ${sSize}px ${subFace}`;
   const sLines = wrap(ctx, slide ? slide.sub : '', maxTW);
 
-  const tLH = tSize * 1.16, sLH = sSize * 1.4;
+  const tLH = tSize * S.lh, sLH = sSize * 1.4;
   const inner = tLines.length * tLH + (sLines.length ? sSize*0.7 + sLines.length*sLH : 0);
   const textH = (tLines.length || sLines.length) ? inner : 0;
 
@@ -405,11 +489,13 @@ function render(ctx, W, H, slide){
   // draw text
   let ty = S.pos === 'top' ? pad : H - pad - textH;
   ctx.fillStyle = S.tcolor;
-  ctx.font = `${S.tweight} ${tSize}px ${S.font}`;
+  if(hasTracking) ctx.letterSpacing = `${tracking}px`;
+  ctx.font = `${S.tweight} ${tSize}px ${headFace}`;
   tLines.forEach(l => { ctx.fillText(l, x, ty); ty += tLH; });
+  if(hasTracking) ctx.letterSpacing = '0px';
   if(sLines.length){
     ty += sSize*0.7;
-    ctx.font = `400 ${sSize}px ${S.font}`;
+    ctx.font = `400 ${sSize}px ${subFace}`;
     ctx.globalAlpha = 0.78;
     sLines.forEach(l => { ctx.fillText(l, x, ty); ty += sLH; });
     ctx.globalAlpha = 1;
@@ -571,6 +657,11 @@ async function exportAll(){
   if(!chosen.length){ st.className = 'status'; st.textContent = 'Tick at least one size.'; return; }
 
   $('export').disabled = true;
+  st.className = 'status'; st.textContent = 'Loading fonts…';
+  await ensureFont(S.font);
+  if(S.subfont) await ensureFont(S.subfont);
+  if(document.fonts && document.fonts.ready) await document.fonts.ready;
+
   const ext = S.fmt === 'jpeg' ? 'jpg' : 'png';
   const zip = window.JSZip ? new JSZip() : null;
   const c = document.createElement('canvas');
@@ -621,11 +712,59 @@ function range(id, key){
 function pick(id, key){ $(id).oninput = () => { S[key] = $(id).value; drawPreview(); }; }
 
 seg('pos','pos'); seg('align','align'); seg('bgmode','bgmode'); seg('fit','fit');
+seg('caps','caps');
 seg('fmt','fmt', () => {});
 range('tsize','tsize'); range('ssize','ssize'); range('imgw','imgw');
 range('radius','radius'); range('pad','pad'); range('gap','gap');
+range('track','track'); range('lh','lh');
 pick('tcolor','tcolor'); pick('bg1','bg1'); pick('bg2','bg2');
-$('font').onchange = () => { S.font = $('font').value; drawPreview(); };
+
+function fillFontSelect(sel, includeSame){
+  const cats = [...new Set(FONTS.map(f => f.c))];
+  if(includeSame){
+    const o = document.createElement('option');
+    o.value = ''; o.textContent = 'Same as headline';
+    sel.appendChild(o);
+  }
+  cats.forEach(c => {
+    const g = document.createElement('optgroup');
+    g.label = c;
+    FONTS.filter(f => f.c === c).forEach(f => {
+      const o = document.createElement('option');
+      o.value = f.n; o.textContent = f.label || f.n;
+      g.appendChild(o);
+    });
+    sel.appendChild(g);
+  });
+}
+fillFontSelect($('font'), false);
+fillFontSelect($('subfont'), true);
+$('font').value = 'Archivo';
+$('subfont').value = '';
+
+function applyWeightState(){
+  const f = FONTS.find(x => x.n === S.font);
+  const single = !!(f && f.one);
+  $('tweight').disabled = single;
+  if(single) S.tweight = '400';
+  else if($('tweight').value !== S.tweight) S.tweight = $('tweight').value;
+  $('fontnote').textContent = single
+    ? `${S.font} ships in one weight, so the weight picker is off.`
+    : 'Web fonts load on demand — the preview redraws when the file arrives.';
+}
+
+$('font').onchange = async () => {
+  S.font = $('font').value;
+  applyWeightState();
+  drawPreview();
+  await ensureFont(S.font);
+  drawPreview();
+};
+$('subfont').onchange = async () => {
+  S.subfont = $('subfont').value;
+  drawPreview();
+  if(S.subfont){ await ensureFont(S.subfont); drawPreview(); }
+};
 $('tweight').onchange = () => { S.tweight = $('tweight').value; drawPreview(); };
 $('shadow').onchange = e => {
   S.shadow = e.target.checked;
@@ -675,6 +814,7 @@ $('export').onclick = exportAll;
 
 paintSizes();
 paintSlides();
+applyWeightState();
 if(document.fonts && document.fonts.ready) document.fonts.ready.then(drawPreview);
 drawPreview();
 </script>
