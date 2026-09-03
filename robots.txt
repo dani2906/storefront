@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://dani2906.github.io/storefront/sitemap.xml

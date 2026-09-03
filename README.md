@@ -2,6 +2,18 @@
 
 A single-file, client-side store screenshot builder. Upload a screenshot, add a headline above or below it, export every size the App Store and Google Play accept. No server, no upload — everything happens on the canvas in the browser.
 
+## Files
+
+| File | Purpose |
+|---|---|
+| `index.html` | The whole app — markup, styles, script, SEO metadata |
+| `og.png` | 1200×630 social share image |
+| `robots.txt` | Allows crawling, points at the sitemap |
+| `sitemap.xml` | Single-URL sitemap |
+| `README.md` | This file |
+
+All five go in the repo root.
+
 ## Deploy to GitHub Pages
 
 Create an empty repo called `storefront` on GitHub, then from the folder holding `index.html`:
@@ -70,6 +82,16 @@ To add a family, append to the `FONTS` array:
 ```
 
 `n` is the CSS family name, `q` is the `family=` value from the Google Fonts embed URL. Add `one:true` for single-weight families, or `q:null` for a locally installed stack.
+
+## SEO
+
+Title, meta description, canonical, Open Graph and Twitter card tags are all set for `https://dani2906.github.io/storefront/`. **If you move the site to a custom domain, update those absolute URLs** — canonical, `og:url`, `og:image`, `twitter:image`, `robots.txt` and `sitemap.xml` all hardcode the Pages URL.
+
+Two JSON-LD blocks ship in the head: a `SoftwareApplication` entry and a `FAQPage` whose questions mirror the visible FAQ at the bottom of the page. Google requires that pairing — structured data describing content that isn't on the page is a manual-action risk.
+
+The indexable body copy (size tables, how-it-works, FAQ) sits below the export bar in the right column. A tool page with no prose ranks poorly no matter how good the metadata is, so that section is doing most of the work.
+
+After deploying: submit the sitemap in Google Search Console, and check the share card with the Facebook Sharing Debugger and X Card Validator.
 
 ## Extending
 

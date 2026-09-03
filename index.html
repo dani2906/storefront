@@ -3,7 +3,83 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Storefront — store screenshot sizer</title>
+
+<title>App Store &amp; Google Play Screenshot Generator — Free, No Signup | Storefront</title>
+<meta name="description" content="Free browser tool that resizes app screenshots to every App Store and Google Play dimension. Add captions, device frames and backgrounds, then export all 14 required sizes as a zip. No signup, no upload.">
+<link rel="canonical" href="https://dani2906.github.io/storefront/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="author" content="dani2906">
+<meta name="theme-color" content="#EFF2F5">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Storefront">
+<meta property="og:url" content="https://dani2906.github.io/storefront/">
+<meta property="og:title" content="App Store &amp; Google Play Screenshot Generator — Free, No Signup">
+<meta property="og:description" content="Upload a screenshot, add a caption, export every size the App Store and Google Play require. Runs entirely in your browser.">
+<meta property="og:image" content="https://dani2906.github.io/storefront/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Storefront — App Store and Google Play screenshot sizer">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="App Store &amp; Google Play Screenshot Generator — Free">
+<meta name="twitter:description" content="Resize app screenshots to every store dimension, add captions and device frames, export as a zip. No signup.">
+<meta name="twitter:image" content="https://dani2906.github.io/storefront/og.png">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23101519'/%3E%3Crect x='20' y='12' width='24' height='40' rx='6' fill='%23fff'/%3E%3Crect x='27' y='16' width='10' height='3' rx='1.5' fill='%23101519'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="og.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Storefront",
+  "alternateName": "App Store & Google Play Screenshot Generator",
+  "url": "https://dani2906.github.io/storefront/",
+  "applicationCategory": "DesignApplication",
+  "operatingSystem": "Any browser",
+  "browserRequirements": "Requires JavaScript",
+  "description": "Free browser-based tool that resizes app screenshots to every App Store and Google Play dimension, with captions, device frames and background themes.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "Export App Store screenshots at 1320x2868, 1290x2796 and 1284x2778",
+    "Export Google Play phone and tablet screenshots",
+    "Add captions above or below the screenshot",
+    "iPhone and Android device frames",
+    "Background gradients and patterns",
+    "Batch export as a zip file"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What size do App Store screenshots need to be?",
+      "acceptedAnswer": { "@type": "Answer", "text": "The 6.9-inch iPhone size is 1320 x 2868 pixels. Apple also accepts 1290 x 2796 and 1260 x 2736 at 6.9 inches, and 1284 x 2778 as a 6.5-inch fallback. iPad apps need 2064 x 2752 for the 13-inch class." }
+    },
+    {
+      "@type": "Question",
+      "name": "What size do Google Play screenshots need to be?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Google Play phone screenshots are commonly 1080 x 1920. Each side must be between 320 and 3840 pixels and the aspect ratio cannot exceed 2:1. A 1024 x 500 feature graphic is also required." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why was my screenshot rejected for having an alpha channel?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Both stores reject images containing transparency. PNG files exported from a browser canvas are 32-bit RGBA even when fully opaque, so exporting as JPEG resolves the rejection." }
+    },
+    {
+      "@type": "Question",
+      "name": "Are my screenshots uploaded to a server?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. All resizing happens on an HTML canvas in your own browser. No image ever leaves your device and there is no account or signup." }
+    }
+  ]
+}
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..700&display=swap" rel="stylesheet">
@@ -169,6 +245,24 @@ input[type=color]{
 .status.done{color:var(--ok)}
 .note{font-size:12.5px;color:var(--muted);margin:8px 0 0}
 .hint{font-size:12.5px;color:var(--muted);margin:-4px 0 12px}
+.h1sub{font-size:14px;font-weight:400;font-stretch:100%;color:var(--muted);letter-spacing:0}
+.seo{
+  margin:38px 0 10px;padding-top:26px;border-top:1px solid var(--line);
+  max-width:70ch;color:var(--ink);
+}
+.seo h2{font-size:17px;font-stretch:112%;margin:26px 0 8px}
+.seo h3{font-size:14.5px;margin:18px 0 4px}
+.seo p, .seo li{font-size:14px;color:#39424C;margin:0 0 10px}
+.seo ol{padding-left:20px}
+.seo table{
+  width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0 6px;
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
+}
+.seo th, .seo td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line)}
+.seo th{font-weight:600;color:var(--muted);font-size:12.5px}
+.seo tr:last-child td{border-bottom:none}
+.seo td:nth-child(2){font-variant-numeric:tabular-nums;white-space:nowrap}
+.colophon{margin-top:24px;font-size:13px;color:var(--muted)}
 .themes{display:flex;flex-wrap:wrap;gap:7px}
 .themes button{
   flex:0 0 auto;padding:0;border:1.5px solid var(--line);border-radius:8px;
@@ -185,8 +279,8 @@ input[type=color]{
 
 <header>
   <div>
-    <h1>Storefront</h1>
-    <p>Drop in a screenshot, write the caption, export every size the App Store and Google Play accept.</p>
+    <h1>Storefront <span class="h1sub">— App Store &amp; Google Play screenshot generator</span></h1>
+    <p>Drop in a screenshot, write the caption, export every size the App Store and Google Play accept. Free, and nothing leaves your browser.</p>
   </div>
   <div class="status" id="head-status">Everything runs in your browser. Nothing uploads anywhere.</div>
 </header>
@@ -415,6 +509,57 @@ input[type=color]{
       <span class="status" id="status"></span>
     </div>
     <p class="note">Both stores reject files with an alpha channel. PNG from a browser canvas is always 32-bit, so if App Store Connect or Play Console complains, re-export as JPEG — the background is opaque either way.</p>
+
+    <div class="seo">
+      <h2>App Store screenshot sizes</h2>
+      <p>Apple scales your largest submitted screenshot down to smaller device classes, so uploading the 6.9-inch set is usually enough. Sizes below are in pixels, portrait orientation.</p>
+      <table>
+        <thead><tr><th>Device class</th><th>Size</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>6.9″ iPhone (17 / 16 Pro Max)</td><td>1320 × 2868</td><td>Primary set</td></tr>
+          <tr><td>6.9″ iPhone (Plus, older Pro Max)</td><td>1290 × 2796</td><td>Also accepted at 6.9″</td></tr>
+          <tr><td>6.9″ iPhone Air</td><td>1260 × 2736</td><td>Also accepted at 6.9″</td></tr>
+          <tr><td>6.5″ iPhone</td><td>1284 × 2778</td><td>Required if you skip 6.9″</td></tr>
+          <tr><td>6.3″ / 6.1″ iPhone</td><td>1206 × 2622 / 1179 × 2556</td><td>Optional</td></tr>
+          <tr><td>5.5″ iPhone</td><td>1242 × 2208</td><td>Legacy</td></tr>
+          <tr><td>13″ iPad</td><td>2064 × 2752</td><td>Required for iPad apps</td></tr>
+          <tr><td>12.9″ iPad</td><td>2048 × 2732</td><td>Legacy iPad</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Google Play screenshot sizes</h2>
+      <p>Play is stricter about ratio than pixel count: every side must fall between 320 and 3840 pixels, and no side can be more than twice the other. That 2:1 ceiling is why Apple's tall 9:19.5 iPhone files cannot simply be reused on Play.</p>
+      <table>
+        <thead><tr><th>Slot</th><th>Size</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Phone</td><td>1080 × 1920</td><td>Minimum 2, maximum 8</td></tr>
+          <tr><td>Phone (hi-res)</td><td>1440 × 2560</td><td>Optional</td></tr>
+          <tr><td>7″ tablet</td><td>1080 × 1920</td><td>Needed for tablet listing quality</td></tr>
+          <tr><td>10″ tablet</td><td>1600 × 2560</td><td>Needed for tablet listing quality</td></tr>
+          <tr><td>Feature graphic</td><td>1024 × 500</td><td>Required for every listing</td></tr>
+        </tbody>
+      </table>
+
+      <h2>How it works</h2>
+      <ol>
+        <li>Drop in one or more screenshots, or paste from the clipboard.</li>
+        <li>Write a headline and supporting line for each, above or below the image.</li>
+        <li>Pick a theme, background pattern, device frame and typeface.</li>
+        <li>Tick the store sizes you need and export — everything arrives as a zip, foldered by store.</li>
+      </ol>
+
+      <h2>Questions</h2>
+      <h3>Are my screenshots uploaded anywhere?</h3>
+      <p>No. Every resize happens on an HTML canvas inside your own browser. No image leaves your device, there is no account, and there is no server to upload to.</p>
+      <h3>Why was my screenshot rejected for an alpha channel?</h3>
+      <p>Both stores reject images containing transparency. A PNG exported from a browser canvas is 32-bit RGBA even when every pixel is fully opaque, so switching the export format to JPEG clears the rejection.</p>
+      <h3>Do I need a separate screenshot for every iPhone size?</h3>
+      <p>Usually not. Apple scales the largest set down to smaller device classes, so the 6.9-inch files plus an iPad set cover most listings.</p>
+      <h3>Can I use a device frame around my screenshot?</h3>
+      <p>Yes, and both stores allow it, but the frame must not misrepresent the hardware. An iPhone bezel drawn around an iPad-sized canvas is the kind of thing that draws a rejection, so leave frames off for tablet sizes.</p>
+
+      <p class="colophon">Storefront is an open source tool by <a href="https://github.com/dani2906">dani2906</a>. Source and issues on <a href="https://github.com/dani2906/storefront">GitHub</a>.</p>
+    </div>
   </section>
 </main>
 
