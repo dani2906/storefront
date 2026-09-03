@@ -47,6 +47,30 @@ Play enforces 320–3840 px per side and an aspect ratio between 1:2 and 2:1 —
 
 Both stores reject images with an alpha channel. Canvas PNGs are always 32-bit RGBA even when fully opaque, so if a file is rejected on upload, switch the export format to JPEG.
 
+## Flourishes
+
+- **Themes** — seven presets (Paper, Midnight, Sunset, Mint, Carbon, Candy, Blueprint), each setting background, accent, pattern, typeface, case and frame together. A dice button shuffles one with a random pattern and tilt.
+- **Device frames** — iPhone or Android bezel drawn around the screenshot, with its own colour. iPhone gets a dynamic island, Android a punch-hole camera. The screenshot itself is never altered, just matted.
+- **Background patterns** — dots, grid, diagonal stripes, arcs, soft blobs, all tinted with the accent colour.
+- **Continuous patterns** — on by default: the pattern spans the whole set, so screenshot 2 picks up where 1 left off and the row reads as one image on the store page.
+- **Tilt** — ±12° rotation of the framed device.
+- **Badge** — a small accent pill above the headline for "NEW", "FREE", "v2.0".
+- **Caption shadow** — for captions sitting over busy backgrounds.
+
+## Fonts
+
+30 faces, grouped as Sans / Display / Serif / Mono / On this device. Everything but the device stack comes from Google Fonts and is fetched only when you pick it — the page itself loads one family. Headline and supporting line can use different faces, and there's tracking, line height and an uppercase toggle for display faces.
+
+Anton, Barriecito, Bebas Neue and Instrument Serif ship a single weight, so the weight picker disables itself when they're selected.
+
+To add a family, append to the `FONTS` array:
+
+```js
+{c:'Sans', n:'Geist', q:'Geist:wght@400..900'}
+```
+
+`n` is the CSS family name, `q` is the `family=` value from the Google Fonts embed URL. Add `one:true` for single-weight families, or `q:null` for a locally installed stack.
+
 ## Extending
 
 Presets live in the `PRESETS` array at the top of the `<script>` block:
