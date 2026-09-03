@@ -144,6 +144,16 @@ input[type=color]{
 .status.done{color:var(--ok)}
 .note{font-size:12.5px;color:var(--muted);margin:8px 0 0}
 .hint{font-size:12.5px;color:var(--muted);margin:-4px 0 12px}
+.themes{display:flex;flex-wrap:wrap;gap:7px}
+.themes button{
+  flex:0 0 auto;padding:0;border:1.5px solid var(--line);border-radius:8px;
+  cursor:pointer;overflow:hidden;background:none;width:64px;
+}
+.themes button[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.themes .sw{height:26px;display:block}
+.themes .nm{
+  display:block;font:inherit;font-size:10.5px;padding:3px 2px;background:var(--panel);color:var(--muted);
+}
 </style>
 </head>
 <body>
@@ -291,6 +301,67 @@ input[type=color]{
       </label>
     </fieldset>
 
+    <fieldset>
+      <legend>Flourishes</legend>
+
+      <label>Themes</label>
+      <div class="themes" id="themes"></div>
+      <button class="tiny" id="surprise" style="margin:8px 0 14px">🎲 Surprise me</button>
+
+      <div class="row">
+        <div>
+          <label for="frame">Device frame</label>
+          <select id="frame">
+            <option value="none">None</option>
+            <option value="ios">iPhone</option>
+            <option value="android">Android</option>
+          </select>
+        </div>
+        <div>
+          <label for="framecolor">Frame colour</label>
+          <input type="color" id="framecolor" value="#1A1C20">
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="pattern">Background pattern</label>
+          <select id="pattern">
+            <option value="none">None</option>
+            <option value="dots">Dots</option>
+            <option value="grid">Grid</option>
+            <option value="stripes">Diagonal stripes</option>
+            <option value="arcs">Arcs</option>
+            <option value="blobs">Soft blobs</option>
+          </select>
+        </div>
+        <div>
+          <label for="accent">Accent</label>
+          <input type="color" id="accent" value="#C2185B">
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="tilt">Tilt <span id="tilt-v">0</span>°</label>
+          <input type="range" id="tilt" min="-12" max="12" step="0.5" value="0">
+        </div>
+        <div>
+          <label for="badge">Badge (optional)</label>
+          <input type="text" id="badge" placeholder="NEW">
+        </div>
+      </div>
+
+      <label class="chip" style="width:100%" data-on="false">
+        <input type="checkbox" id="tshadow"> Soft shadow behind the caption
+      </label>
+      <div style="height:8px"></div>
+      <label class="chip" style="width:100%" data-on="true">
+        <input type="checkbox" id="continuous" checked> Continue the pattern across the whole set
+      </label>
+      <p class="hint" style="margin-top:8px">Continuous patterns line up when the store shows your screenshots side by side.</p>
+    </fieldset>
+
   </section>
 
   <section class="stage">
@@ -378,8 +449,20 @@ const FONTS = [
 const S = {
   pos:'top', align:'center', font:'Archivo', subfont:'', tsize:5.6, ssize:3.2, tweight:'600',
   tcolor:'#101519', bg1:'#EFF2F5', bg2:'#D8DEE5', bgmode:'solid', track:0, lh:1.16, caps:'none',
-  imgw:78, radius:3.6, pad:7, gap:6, fit:'contain', shadow:true, fmt:'png'
+  imgw:78, radius:3.6, pad:7, gap:6, fit:'contain', shadow:true, fmt:'png',
+  frame:'none', framecolor:'#1A1C20', pattern:'none', accent:'#C2185B',
+  tilt:0, badge:'', tshadow:false, continuous:true
 };
+
+const THEMES = [
+  {name:'Paper',   bg1:'#EFF2F5', bg2:'#D8DEE5', bgmode:'solid',    tcolor:'#101519', accent:'#C2185B', pattern:'none',    font:'Archivo',       caps:'none',  track:0,  frame:'none',    framecolor:'#1A1C20'},
+  {name:'Midnight',bg1:'#0E1116', bg2:'#1B2430', bgmode:'gradient', tcolor:'#F4F7FA', accent:'#4F8DF7', pattern:'grid',    font:'Inter',         caps:'none',  track:-.5,frame:'ios',     framecolor:'#2A2E36'},
+  {name:'Sunset',  bg1:'#FF7A59', bg2:'#FFC46B', bgmode:'gradient', tcolor:'#331104', accent:'#8A2E12', pattern:'blobs',   font:'Outfit',        caps:'none',  track:0,  frame:'ios',     framecolor:'#20130C'},
+  {name:'Mint',    bg1:'#E8F7F0', bg2:'#CDEFE2', bgmode:'solid',    tcolor:'#0C3A2C', accent:'#17A97D', pattern:'dots',    font:'DM Sans',       caps:'none',  track:0,  frame:'android', framecolor:'#12352A'},
+  {name:'Carbon',  bg1:'#101215', bg2:'#191D22', bgmode:'solid',    tcolor:'#FFFFFF', accent:'#C9F24D', pattern:'stripes', font:'Space Grotesk', caps:'upper', track:-1.5,frame:'ios',    framecolor:'#26292F'},
+  {name:'Candy',   bg1:'#FFE3F1', bg2:'#E4D9FF', bgmode:'gradient', tcolor:'#2B1240', accent:'#E5399B', pattern:'arcs',    font:'Barriecito',    caps:'none',  track:-1, frame:'none',    framecolor:'#2B1240'},
+  {name:'Blueprint',bg1:'#0B2545',bg2:'#13315C', bgmode:'gradient', tcolor:'#EAF3FF', accent:'#6FA8FF', pattern:'grid',    font:'JetBrains Mono',caps:'upper', track:1,  frame:'android', framecolor:'#0A1A2E'},
+];
 
 /* ---------- on-demand web fonts ---------- */
 
@@ -445,7 +528,102 @@ function roundRectPath(ctx, x, y, w, h, r){
   ctx.closePath();
 }
 
-function render(ctx, W, H, slide){
+function rgba(hex, a){
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`;
+}
+
+/* Patterns can run continuously across a set: slide 2 picks up where slide 1 stopped. */
+function drawPattern(ctx, W, H, idx, total){
+  if(S.pattern === 'none') return;
+  const off = S.continuous ? idx * W : 0;
+  const span = S.continuous ? W * total : W;
+  ctx.save();
+
+  if(S.pattern === 'dots'){
+    const step = W*0.062, r = W*0.0055;
+    ctx.fillStyle = rgba(S.accent, .18);
+    for(let y = step/2; y < H; y += step){
+      for(let x = step/2 - (off % step); x < W + step; x += step){
+        ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.fill();
+      }
+    }
+  }
+  else if(S.pattern === 'grid'){
+    const step = W*0.075;
+    ctx.strokeStyle = rgba(S.accent, .16);
+    ctx.lineWidth = Math.max(1, W*0.0022);
+    ctx.beginPath();
+    for(let x = -(off % step); x < W + step; x += step){ ctx.moveTo(x, 0); ctx.lineTo(x, H); }
+    for(let y = 0; y < H + step; y += step){ ctx.moveTo(0, y); ctx.lineTo(W, y); }
+    ctx.stroke();
+  }
+  else if(S.pattern === 'stripes'){
+    const step = W*0.11;
+    ctx.fillStyle = rgba(S.accent, .13);
+    ctx.translate(-off*0.6, 0);
+    ctx.rotate(-Math.PI/7);
+    for(let x = -H; x < W + H*2 + off; x += step*2){
+      ctx.fillRect(x, -H, step, H*3);
+    }
+  }
+  else if(S.pattern === 'arcs'){
+    ctx.strokeStyle = rgba(S.accent, .16);
+    ctx.lineWidth = Math.max(1, W*0.004);
+    const cx = span*0.5 - off, cy = H*0.32;
+    for(let i = 1; i <= 9; i++){
+      ctx.beginPath(); ctx.arc(cx, cy, W*0.16*i, 0, Math.PI*2); ctx.stroke();
+    }
+  }
+  else if(S.pattern === 'blobs'){
+    [[0.18,0.22,0.46],[0.55,0.72,0.38],[0.86,0.4,0.5]].forEach(([px, py, pr]) => {
+      const cx = px*span - off, cy = py*H, r = W*pr;
+      if(cx < -r || cx > W + r) return;
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      g.addColorStop(0, rgba(S.accent, .34));
+      g.addColorStop(1, rgba(S.accent, 0));
+      ctx.fillStyle = g;
+      ctx.fillRect(cx-r, cy-r, r*2, r*2);
+    });
+  }
+  ctx.restore();
+}
+
+/* Bezel drawn behind the screenshot; the screenshot itself stays untouched. */
+function drawFrame(ctx, x, y, w, h, r){
+  if(S.frame === 'none') return;
+  const b = w * (S.frame === 'ios' ? 0.034 : 0.026);
+  ctx.save();
+  ctx.fillStyle = S.framecolor;
+  roundRectPath(ctx, x-b, y-b, w+b*2, h+b*2, r+b);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+  ctx.lineWidth = Math.max(1, w*0.003);
+  roundRectPath(ctx, x-b*0.55, y-b*0.55, w+b*1.1, h+b*1.1, r+b*0.55);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawFrameDetail(ctx, x, y, w, h){
+  if(S.frame === 'ios'){
+    const iw = w*0.30, ih = w*0.072;
+    ctx.save();
+    ctx.fillStyle = '#08090B';
+    roundRectPath(ctx, x + (w-iw)/2, y + w*0.026, iw, ih, ih/2);
+    ctx.fill();
+    ctx.restore();
+  } else if(S.frame === 'android'){
+    ctx.save();
+    ctx.fillStyle = '#08090B';
+    ctx.beginPath();
+    ctx.arc(x + w/2, y + w*0.05, w*0.019, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+function render(ctx, W, H, slide, idx, total){
+  idx = idx || 0; total = total || 1;
   ctx.save();
   ctx.clearRect(0,0,W,H);
 
@@ -456,6 +634,7 @@ function render(ctx, W, H, slide){
     ctx.fillStyle = g;
   } else ctx.fillStyle = S.bg1;
   ctx.fillRect(0,0,W,H);
+  drawPattern(ctx, W, H, idx, total);
 
   const pad   = W * S.pad/100;
   const gap   = W * S.gap/100;
@@ -482,13 +661,38 @@ function render(ctx, W, H, slide){
   const sLines = wrap(ctx, slide ? slide.sub : '', maxTW);
 
   const tLH = tSize * S.lh, sLH = sSize * 1.4;
+  const badgeTxt = (S.badge || '').trim();
+  const bH = badgeTxt ? tSize*0.66 : 0;
+  const bGap = badgeTxt ? tSize*0.34 : 0;
   const inner = tLines.length * tLH + (sLines.length ? sSize*0.7 + sLines.length*sLH : 0);
-  const textH = (tLines.length || sLines.length) ? inner : 0;
+  const textH = (tLines.length || sLines.length || badgeTxt) ? inner + bH + bGap : 0;
 
   const x = S.align === 'left' ? pad : S.align === 'right' ? W - pad : W/2;
 
   // draw text
   let ty = S.pos === 'top' ? pad : H - pad - textH;
+
+  if(badgeTxt){
+    const fs = bH*0.54;
+    ctx.font = `700 ${fs}px ${headFace}`;
+    const padX = bH*0.5;
+    const bw = ctx.measureText(badgeTxt).width + padX*2;
+    const bx = S.align === 'left' ? pad : S.align === 'right' ? W - pad - bw : (W - bw)/2;
+    ctx.fillStyle = S.accent;
+    roundRectPath(ctx, bx, ty, bw, bH, bH/2);
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.textAlign = 'left';
+    ctx.fillText(badgeTxt, bx + padX, ty + (bH - fs)/2 - fs*0.06);
+    ctx.textAlign = S.align;
+    ty += bH + bGap;
+  }
+
+  if(S.tshadow){
+    ctx.shadowColor = 'rgba(0,0,0,0.28)';
+    ctx.shadowBlur = W*0.018;
+    ctx.shadowOffsetY = W*0.005;
+  }
   ctx.fillStyle = S.tcolor;
   if(hasTracking) ctx.letterSpacing = `${tracking}px`;
   ctx.font = `${S.tweight} ${tSize}px ${headFace}`;
@@ -501,6 +705,8 @@ function render(ctx, W, H, slide){
     sLines.forEach(l => { ctx.fillText(l, x, ty); ty += sLH; });
     ctx.globalAlpha = 1;
   }
+
+  ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
 
   // image region
   const img = slide && slide.img;
@@ -515,34 +721,53 @@ function render(ctx, W, H, slide){
       avail = (H - pad - textH) - gap - top;
     }
     if(avail > 20){
-      let iw = W * S.imgw/100;
-      let ih = iw * img.naturalHeight / img.naturalWidth;
-      let clip = false;
-      if(ih > avail){
-        if(S.fit === 'contain'){ ih = avail; iw = ih * img.naturalWidth / img.naturalHeight; }
+      const ratio = img.naturalHeight / img.naturalWidth;
+      const maxW = W * S.imgw/100;
+      let iw = maxW, ih = iw * ratio, clip = false;
+      const bez = S.frame === 'none' ? 0 : (S.frame === 'ios' ? 0.034 : 0.026);
+      const framed = S.frame !== 'none' && S.fit !== 'bleed';
+
+      if(framed){
+        iw = Math.min(maxW/(1 + bez*2), avail/(ratio + bez*2));
+        ih = iw * ratio;
+      } else if(ih > avail){
+        if(S.fit === 'contain'){ ih = avail; iw = ih / ratio; }
         else clip = true;
       }
+
+      const b = framed ? iw*bez : 0;
+      const blockH = (clip ? avail : ih) + b*2;
       const ix = (W - iw)/2;
-      const iy = (S.fit === 'bleed' && clip) ? top : top + (avail - Math.min(ih, avail))/2;
+      const iy = (S.fit === 'bleed' && clip) ? top : top + b + (avail - blockH)/2;
       const r = W * S.radius/100;
 
       ctx.save();
-      if(clip){
-        roundRectPath(ctx, ix, top, iw, avail, r);
-        ctx.clip();
+      if(S.tilt){
+        ctx.translate(W/2, iy + (clip ? avail : ih)/2);
+        ctx.rotate(S.tilt * Math.PI/180);
+        ctx.translate(-W/2, -(iy + (clip ? avail : ih)/2));
       }
+
       if(S.shadow){
         ctx.save();
         ctx.shadowColor = 'rgba(16,21,25,0.28)';
         ctx.shadowBlur = W*0.045;
         ctx.shadowOffsetY = W*0.016;
         ctx.fillStyle = '#000';
-        roundRectPath(ctx, ix, iy, iw, clip ? avail : ih, r);
+        roundRectPath(ctx, ix-b, iy-b, iw+b*2, (clip ? avail : ih)+b*2, r+b);
         ctx.fill();
         ctx.restore();
       }
-      if(!clip){ roundRectPath(ctx, ix, iy, iw, ih, r); ctx.clip(); }
+
+      if(framed) drawFrame(ctx, ix, iy, iw, ih, r);
+
+      ctx.save();
+      roundRectPath(ctx, ix, iy, iw, clip ? avail : ih, r);
+      ctx.clip();
       ctx.drawImage(img, ix, iy, iw, ih);
+      ctx.restore();
+
+      if(framed) drawFrameDetail(ctx, ix, iy, iw, ih);
       ctx.restore();
     }
   }
@@ -554,7 +779,7 @@ function render(ctx, W, H, slide){
 function drawPreview(){
   const p = PRESETS[+$('previewsize').value] || PRESETS[0];
   preview.width = p.w; preview.height = p.h;
-  render(pctx, p.w, p.h, slides[current]);
+  render(pctx, p.w, p.h, slides[current], current, Math.max(1, slides.length));
 }
 
 /* ---------- slides ---------- */
@@ -672,7 +897,7 @@ async function exportAll(){
   for(const p of chosen){
     for(let i = 0; i < slides.length; i++){
       c.width = p.w; c.height = p.h;
-      render(ctx, p.w, p.h, slides[i]);
+      render(ctx, p.w, p.h, slides[i], i, slides.length);
       const blob = await canvasBlob(c);
       const name = `${String(i+1).padStart(2,'0')}_${p.w}x${p.h}.${ext}`;
       if(zip) zip.file(`${p.dir}/${name}`, blob);
@@ -773,6 +998,75 @@ $('shadow').onchange = e => {
   drawPreview();
 };
 
+/* ---------- flourishes ---------- */
+
+range('tilt','tilt');
+pick('accent','accent'); pick('framecolor','framecolor');
+$('frame').onchange   = () => { S.frame   = $('frame').value;   drawPreview(); };
+$('pattern').onchange = () => { S.pattern = $('pattern').value; drawPreview(); };
+$('badge').oninput    = () => { S.badge   = $('badge').value;   drawPreview(); };
+['tshadow','continuous'].forEach(id => {
+  $(id).onchange = e => {
+    S[id] = e.target.checked;
+    e.target.closest('.chip').dataset.on = S[id];
+    drawPreview();
+  };
+});
+
+function setSeg(id, v){
+  $(id).querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === v));
+}
+function setRange(id, v){
+  $(id).value = v;
+  const out = $(id + '-v'); if(out) out.textContent = v;
+}
+
+async function applyTheme(t){
+  Object.assign(S, {
+    bg1:t.bg1, bg2:t.bg2, bgmode:t.bgmode, tcolor:t.tcolor, accent:t.accent,
+    pattern:t.pattern, font:t.font, caps:t.caps, track:t.track,
+    frame:t.frame, framecolor:t.framecolor
+  });
+  $('bg1').value = t.bg1; $('bg2').value = t.bg2;
+  $('tcolor').value = t.tcolor; $('accent').value = t.accent;
+  $('framecolor').value = t.framecolor;
+  $('pattern').value = t.pattern; $('frame').value = t.frame;
+  $('font').value = t.font;
+  setSeg('bgmode', t.bgmode); setSeg('caps', t.caps);
+  setRange('track', t.track);
+  applyWeightState();
+  paintThemes(t.name);
+  drawPreview();
+  await ensureFont(t.font);
+  drawPreview();
+}
+
+function paintThemes(activeName){
+  const box = $('themes');
+  box.innerHTML = '';
+  THEMES.forEach(t => {
+    const b = document.createElement('button');
+    b.setAttribute('aria-pressed', t.name === activeName);
+    b.title = t.name;
+    b.innerHTML = `<span class="sw" style="background:linear-gradient(135deg,${t.bg1},${t.bg2})">
+      </span><span class="nm">${t.name}</span>`;
+    b.onclick = () => applyTheme(t);
+    box.appendChild(b);
+  });
+}
+
+$('surprise').onclick = () => {
+  const t = THEMES[Math.floor(Math.random()*THEMES.length)];
+  const pats = ['none','dots','grid','stripes','arcs','blobs'];
+  applyTheme({...t,
+    pattern: pats[Math.floor(Math.random()*pats.length)],
+    name: t.name
+  });
+  const tilt = [0,0,-4,4,-7,7][Math.floor(Math.random()*6)];
+  S.tilt = tilt; setRange('tilt', tilt);
+  drawPreview();
+};
+
 $('title').oninput = () => { if(slides[current]){ slides[current].title = $('title').value; drawPreview(); } };
 $('sub').oninput   = () => { if(slides[current]){ slides[current].sub   = $('sub').value;   drawPreview(); } };
 
@@ -815,6 +1109,7 @@ $('export').onclick = exportAll;
 
 paintSizes();
 paintSlides();
+paintThemes('Paper');
 applyWeightState();
 if(document.fonts && document.fonts.ready) document.fonts.ready.then(drawPreview);
 drawPreview();
