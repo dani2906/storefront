@@ -64,7 +64,7 @@
     {
       "@type": "Question",
       "name": "What size do Google Play screenshots need to be?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Google Play phone screenshots are commonly 1080 x 1920. Each side must be between 320 and 3840 pixels and the aspect ratio cannot exceed 2:1. A 1024 x 500 feature graphic is also required." }
+      "acceptedAnswer": { "@type": "Answer", "text": "Google Play phone screenshots are commonly 1080 x 1920. You need at least 2 and at most 8. Each side must be between 320 and 3840 pixels and the aspect ratio cannot exceed 2:1. A 1024 x 500 feature graphic is also required to publish." }
     },
     {
       "@type": "Question",
@@ -236,6 +236,23 @@ input[type=color]{
 .chip[data-on=true]{color:var(--ink);border-color:#9AA5B1}
 .chip small{font-variant-numeric:tabular-nums;opacity:.7}
 .chip .req{color:var(--accent);font-size:11px;font-weight:600}
+.rules{
+  margin-top:16px;padding:12px 14px;
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+}
+.rules h3{
+  margin:0 0 8px;font-size:13px;font-weight:600;font-stretch:112%;
+}
+.rules ul{margin:0;padding:0;list-style:none}
+.rules li{
+  position:relative;padding:3px 0 3px 18px;font-size:13px;color:var(--muted);
+}
+.rules li::before{position:absolute;left:0;top:3px}
+.rules li.ok::before{content:'✓';color:var(--ok)}
+.rules li.ok{color:#1B7F5A}
+.rules li.warn::before{content:'!';color:var(--accent);font-weight:700}
+.rules li.warn{color:#8A1848}
+.rules li.note::before{content:'·';color:var(--muted)}
 .exportbar{
   position:sticky;bottom:0;margin-top:18px;padding:14px 0 0;
   background:linear-gradient(to top,var(--paper) 70%,rgba(233,236,239,0));
@@ -441,6 +458,7 @@ input[type=color]{
           <input type="color" id="framecolor" value="#1A1C20">
         </div>
       </div>
+      <p class="hint">Frames apply only where that store allows them — iPhone chrome on iPhone sizes, Android on Play phone. iPad, tablets and the feature graphic never get a phone bezel.</p>
 
       <div class="row">
         <div>
@@ -462,12 +480,22 @@ input[type=color]{
 
       <div class="row">
         <div>
-          <label for="tilt">Tilt <span id="tilt-v">0</span>°</label>
+          <label for="tilt">Tilt this screenshot <span id="tilt-v">0</span>°</label>
           <input type="range" id="tilt" min="-12" max="12" step="0.5" value="0">
         </div>
         <div>
+          <label for="lift">Up / down <span id="lift-v">0</span></label>
+          <input type="range" id="lift" min="-22" max="22" step="0.5" value="0">
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="zoom">Size this screenshot <span id="zoom-v">100</span>%</label>
+          <input type="range" id="zoom" min="55" max="145" step="1" value="100">
+        </div>
+        <div>
           <label for="badge">Badge (optional)</label>
-          <input type="text" id="badge" placeholder="NEW">
+          <input type="text" id="badge" placeholder="v2">
         </div>
       </div>
 
@@ -497,8 +525,10 @@ input[type=color]{
     <div class="preview-wrap" style="margin-top:10px">
       <canvas id="preview" width="1320" height="2868"></canvas>
     </div>
+    <p class="hint" id="preview-note" hidden></p>
 
     <div class="sizes" id="sizes"></div>
+    <div class="rules" id="rules" hidden></div>
 
     <div class="exportbar">
       <button class="act go" id="export">Export selected sizes</button>
@@ -519,10 +549,10 @@ input[type=color]{
           <tr><td>6.9″ iPhone (17 / 16 Pro Max)</td><td>1320 × 2868</td><td>Primary set</td></tr>
           <tr><td>6.9″ iPhone (Plus, older Pro Max)</td><td>1290 × 2796</td><td>Also accepted at 6.9″</td></tr>
           <tr><td>6.9″ iPhone Air</td><td>1260 × 2736</td><td>Also accepted at 6.9″</td></tr>
-          <tr><td>6.5″ iPhone</td><td>1284 × 2778</td><td>Required if you skip 6.9″</td></tr>
+          <tr><td>6.5″ iPhone</td><td>1284 × 2778</td><td>Required only if you skip every 6.9″ size</td></tr>
           <tr><td>6.3″ / 6.1″ iPhone</td><td>1206 × 2622 / 1179 × 2556</td><td>Optional</td></tr>
           <tr><td>5.5″ iPhone</td><td>1242 × 2208</td><td>Legacy</td></tr>
-          <tr><td>13″ iPad</td><td>2064 × 2752</td><td>Required for iPad apps</td></tr>
+          <tr><td>13″ iPad</td><td>2064 × 2752</td><td>Required if the app runs on iPad</td></tr>
           <tr><td>12.9″ iPad</td><td>2048 × 2732</td><td>Legacy iPad</td></tr>
         </tbody>
       </table>
@@ -532,7 +562,7 @@ input[type=color]{
       <table>
         <thead><tr><th>Slot</th><th>Size</th><th>Notes</th></tr></thead>
         <tbody>
-          <tr><td>Phone</td><td>1080 × 1920</td><td>Minimum 2, maximum 8</td></tr>
+          <tr><td>Phone</td><td>1080 × 1920</td><td>Minimum 2, maximum 8 · 9:16</td></tr>
           <tr><td>Phone (hi-res)</td><td>1440 × 2560</td><td>Optional</td></tr>
           <tr><td>7″ tablet</td><td>1080 × 1920</td><td>Needed for tablet listing quality</td></tr>
           <tr><td>10″ tablet</td><td>1600 × 2560</td><td>Needed for tablet listing quality</td></tr>
@@ -556,7 +586,7 @@ input[type=color]{
       <h3>Do I need a separate screenshot for every iPhone size?</h3>
       <p>Usually not. Apple scales the largest set down to smaller device classes, so the 6.9-inch files plus an iPad set cover most listings.</p>
       <h3>Can I use a device frame around my screenshot?</h3>
-      <p>Yes, and both stores allow it, but the frame must not misrepresent the hardware. An iPhone bezel drawn around an iPad-sized canvas is the kind of thing that draws a rejection, so leave frames off for tablet sizes.</p>
+      <p>Yes, with limits. Apple allows an iPhone bezel on iPhone sizes and marketing captions on top (guideline 2.3.3), but rejects an iPhone frame on iPad and Android chrome on iOS (2.3.10). Play allows stylized phone screenshots, asks that taglines stay modest, and does not want device imagery on the 1024×500 feature graphic. Storefront drops a frame on any size that store would refuse.</p>
 
       <p class="colophon">Storefront is an open source tool by <a href="https://github.com/dani2906">dani2906</a>. Source and issues on <a href="https://github.com/dani2906/storefront">GitHub</a>.</p>
     </div>
@@ -566,21 +596,24 @@ input[type=color]{
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
 const PRESETS = [
-  {g:'App Store — iPhone', dir:'AppStore/iPhone-6.9', label:'6.9″ · 17/16 Pro Max', w:1320, h:2868, on:true, req:true},
-  {g:'App Store — iPhone', dir:'AppStore/iPhone-6.9-alt', label:'6.9″ · Plus / older Pro Max', w:1290, h:2796, on:true},
-  {g:'App Store — iPhone', dir:'AppStore/iPhone-6.9-air', label:'6.9″ · iPhone Air', w:1260, h:2736, on:false},
-  {g:'App Store — iPhone', dir:'AppStore/iPhone-6.5', label:'6.5″ fallback', w:1284, h:2778, on:true, req:true},
-  {g:'App Store — iPhone', dir:'AppStore/iPhone-6.3', label:'6.3″', w:1206, h:2622, on:false},
-  {g:'App Store — iPhone', dir:'AppStore/iPhone-6.1', label:'6.1″', w:1179, h:2556, on:false},
-  {g:'App Store — iPhone', dir:'AppStore/iPhone-5.5', label:'5.5″', w:1242, h:2208, on:false},
-  {g:'App Store — iPad', dir:'AppStore/iPad-13', label:'13″ iPad', w:2064, h:2752, on:false, req:true},
-  {g:'App Store — iPad', dir:'AppStore/iPad-12.9', label:'12.9″ iPad', w:2048, h:2732, on:false},
-  {g:'Google Play', dir:'Play/phone', label:'Phone', w:1080, h:1920, on:true, req:true},
-  {g:'Google Play', dir:'Play/phone-hi', label:'Phone hi-res', w:1440, h:2560, on:false},
-  {g:'Google Play', dir:'Play/tablet-7', label:'7″ tablet', w:1080, h:1920, on:false},
-  {g:'Google Play', dir:'Play/tablet-10', label:'10″ tablet', w:1600, h:2560, on:false},
-  {g:'Google Play', dir:'Play/feature-graphic', label:'Feature graphic', w:1024, h:500, on:false, req:true},
+  {g:'App Store — iPhone', dir:'AppStore/iPhone-6.9', label:'6.9″ · 17/16 Pro Max', w:1320, h:2868, on:true, req:'iphone', store:'apple', kind:'iphone', slot:'6.9', frame:'ios'},
+  {g:'App Store — iPhone', dir:'AppStore/iPhone-6.9-alt', label:'6.9″ · Plus / older Pro Max', w:1290, h:2796, on:true, store:'apple', kind:'iphone', slot:'6.9', frame:'ios'},
+  {g:'App Store — iPhone', dir:'AppStore/iPhone-6.9-air', label:'6.9″ · iPhone Air', w:1260, h:2736, on:false, store:'apple', kind:'iphone', slot:'6.9', frame:'ios'},
+  {g:'App Store — iPhone', dir:'AppStore/iPhone-6.5', label:'6.5″ fallback', w:1284, h:2778, on:true, req:'fallback', store:'apple', kind:'iphone', slot:'6.5', frame:'ios'},
+  {g:'App Store — iPhone', dir:'AppStore/iPhone-6.3', label:'6.3″', w:1206, h:2622, on:false, store:'apple', kind:'iphone', slot:'6.3', frame:'ios'},
+  {g:'App Store — iPhone', dir:'AppStore/iPhone-6.1', label:'6.1″', w:1179, h:2556, on:false, store:'apple', kind:'iphone', slot:'6.1', frame:'ios'},
+  {g:'App Store — iPhone', dir:'AppStore/iPhone-5.5', label:'5.5″', w:1242, h:2208, on:false, store:'apple', kind:'iphone', slot:'5.5', frame:'ios'},
+  {g:'App Store — iPad', dir:'AppStore/iPad-13', label:'13″ iPad', w:2064, h:2752, on:false, req:'ipad', store:'apple', kind:'ipad', slot:'13', frame:null},
+  {g:'App Store — iPad', dir:'AppStore/iPad-12.9', label:'12.9″ iPad', w:2048, h:2732, on:false, store:'apple', kind:'ipad', slot:'12.9', frame:null},
+  {g:'Google Play', dir:'Play/phone', label:'Phone', w:1080, h:1920, on:true, req:'play-phone', store:'play', kind:'phone', slot:'phone', frame:'android'},
+  {g:'Google Play', dir:'Play/phone-hi', label:'Phone hi-res', w:1440, h:2560, on:false, store:'play', kind:'phone', slot:'phone-hi', frame:'android'},
+  {g:'Google Play', dir:'Play/tablet-7', label:'7″ tablet', w:1080, h:1920, on:false, store:'play', kind:'tablet', slot:'tablet-7', frame:null},
+  {g:'Google Play', dir:'Play/tablet-10', label:'10″ tablet', w:1600, h:2560, on:false, store:'play', kind:'tablet', slot:'tablet-10', frame:null},
+  {g:'Google Play', dir:'Play/feature-graphic', label:'Feature graphic', w:1024, h:500, on:true, req:'feature', store:'play', kind:'feature', slot:'feature', frame:null},
 ];
+
+/* Apple 2.3.3 / 2.3.10 and Play Console preview-asset rules, applied per size. */
+const PLAY_CLAIM = /\b(best|#1|top|new|free|discount|sale|million downloads|download now|install now|play now|try now)\b/i;
 
 /* label, CSS family name, Google css2 query (null = already installed / system), single-weight? */
 const FONTS = [
@@ -621,7 +654,7 @@ const S = {
   tcolor:'#101519', bg1:'#EFF2F5', bg2:'#D8DEE5', bgmode:'solid', track:0, lh:1.16, caps:'none',
   imgw:78, radius:3.6, pad:7, gap:6, fit:'contain', shadow:true, fmt:'png',
   frame:'none', framecolor:'#1A1C20', pattern:'none', accent:'#C2185B',
-  tilt:0, badge:'', tshadow:false, continuous:true
+  badge:'', tshadow:false, continuous:true
 };
 
 const THEMES = [
@@ -663,7 +696,7 @@ function fontStack(name){
   return `"${name}", ${f.c === 'Serif' ? 'serif' : f.c === 'Mono' ? 'monospace' : 'sans-serif'}`;
 }
 
-let slides = [];      // {img, url, title, sub}
+let slides = [];      // {img, url, title, sub, tilt, lift, zoom}
 let current = 0;
 
 const $ = id => document.getElementById(id);
@@ -759,10 +792,95 @@ function drawPattern(ctx, W, H, idx, total){
   ctx.restore();
 }
 
+function policyFor(p){
+  const wanted = S.frame;
+  const allowed = p && p.frame;
+  const frame = (wanted !== 'none' && wanted === allowed) ? wanted : 'none';
+  let omit = '';
+  if(wanted !== 'none' && frame === 'none'){
+    if(p && p.kind === 'feature') omit = 'Device frame omitted — Play asks that the feature graphic not use device imagery.';
+    else if(p && p.store === 'play' && wanted === 'ios') omit = 'iPhone frame omitted — Play listings should not show Apple device chrome.';
+    else if(p && p.store === 'apple' && wanted === 'android') omit = 'Android frame omitted — Apple rejects other-platform device chrome (guideline 2.3.10).';
+    else if(p && p.kind === 'ipad') omit = 'Phone frame omitted — Apple rejects a phone bezel on iPad sizes.';
+    else if(p && p.kind === 'tablet') omit = 'Phone frame omitted — a phone bezel on a tablet size misrepresents the hardware.';
+    else omit = 'Device frame omitted for this size — it is not allowed on this store slot.';
+  }
+  return {frame, omit};
+}
+
+function reqLabel(p){
+  const has69 = PRESETS.some(x => x.slot === '6.9' && x.on);
+  if(p.req === 'iphone') return 'required';
+  if(p.req === 'fallback') return has69 ? 'if no 6.9″' : 'required';
+  if(p.req === 'ipad') return 'if iPad app';
+  if(p.req === 'play-phone') return 'required · 2–8';
+  if(p.req === 'feature') return 'required';
+  return '';
+}
+
+function playClaims(){
+  const hits = new Set();
+  const scan = t => {
+    const m = String(t || '').match(PLAY_CLAIM);
+    if(m) hits.add(m[0]);
+  };
+  scan(S.badge);
+  slides.forEach(s => { scan(s.title); scan(s.sub); });
+  return [...hits];
+}
+
+function paintRules(){
+  const box = $('rules');
+  if(!box) return;
+  const chosen = PRESETS.filter(p => p.on);
+  const n = slides.length;
+  const apple = chosen.some(p => p.store === 'apple');
+  const play = chosen.some(p => p.store === 'play');
+  const items = [];
+
+  const has69 = chosen.some(p => p.slot === '6.9');
+  const has65 = chosen.some(p => p.slot === '6.5');
+  if(apple && has69) items.push(['ok', 'A 6.9″ iPhone size is selected — Apple scales that set down to smaller iPhones.']);
+  else if(apple && has65) items.push(['ok', '6.5″ fallback is selected. Apple accepts this if you skip every 6.9″ size.']);
+  else if(apple) items.push(['warn', 'Apple needs a 6.9″ set (1320×2868, 1290×2796 or 1260×2736), or 1284×2778 as a 6.5″ fallback.']);
+
+  if(apple && !chosen.some(p => p.kind === 'ipad'))
+    items.push(['note', 'Add a 13″ iPad size if the app runs on iPad. Apple does not scale iPhone screenshots to iPad.']);
+
+  if(play && chosen.some(p => p.kind === 'phone'))
+    items.push(['ok', 'Play phone size is within 320–3840 px and the 2:1 aspect-ratio cap.']);
+  if(play && !chosen.some(p => p.kind === 'feature'))
+    items.push(['warn', 'Play requires a 1024×500 feature graphic to publish a listing.']);
+  if(play && n > 0 && n < 2)
+    items.push(['warn', 'Play needs at least 2 phone screenshots to publish (4 at 1080p+ to be eligible for featuring).']);
+  if(play && n >= 2 && n < 4)
+    items.push(['note', 'Play featuring usually wants 4 screenshots at 1080×1920 or larger, 9:16.']);
+  if(apple && n > 10)
+    items.push(['warn', `Apple allows 10 screenshots per device class; this set has ${n}.`]);
+  if(play && n > 8)
+    items.push(['warn', `Play allows 8 screenshots per device type; this set has ${n}.`]);
+
+  if(S.fmt === 'png' && chosen.length)
+    items.push(['warn', 'Both stores reject alpha channels. Browser PNG is 32-bit — switch to JPEG if upload is refused.']);
+
+  if(S.frame === 'ios' && chosen.some(p => policyFor(p).frame === 'none'))
+    items.push(['note', 'iPhone frame is left off iPad, tablet and Play sizes — a mismatched bezel is a common rejection.']);
+  if(S.frame === 'android' && chosen.some(p => policyFor(p).frame === 'none'))
+    items.push(['note', 'Android frame is left off App Store and tablet sizes. Apple rejects other-platform chrome (2.3.10).']);
+
+  const claims = playClaims();
+  if(play && claims.length)
+    items.push(['warn', `Play discourages ranking or promo copy (“${claims.join('”, “')}”) on screenshots and the feature graphic.`]);
+
+  box.hidden = !items.length;
+  box.innerHTML = `<h3>What the stores allow</h3><ul>${items.map(([k,t]) => `<li class="${k}">${t}</li>`).join('')}</ul>`;
+}
+
 /* Bezel drawn behind the screenshot; the screenshot itself stays untouched. */
-function drawFrame(ctx, x, y, w, h, r){
-  if(S.frame === 'none') return;
-  const b = w * (S.frame === 'ios' ? 0.034 : 0.026);
+function drawFrame(ctx, x, y, w, h, r, frame){
+  frame = frame || S.frame;
+  if(frame === 'none') return;
+  const b = w * (frame === 'ios' ? 0.034 : 0.026);
   ctx.save();
   ctx.fillStyle = S.framecolor;
   roundRectPath(ctx, x-b, y-b, w+b*2, h+b*2, r+b);
@@ -774,15 +892,16 @@ function drawFrame(ctx, x, y, w, h, r){
   ctx.restore();
 }
 
-function drawFrameDetail(ctx, x, y, w, h){
-  if(S.frame === 'ios'){
+function drawFrameDetail(ctx, x, y, w, h, frame){
+  frame = frame || S.frame;
+  if(frame === 'ios'){
     const iw = w*0.30, ih = w*0.072;
     ctx.save();
     ctx.fillStyle = '#08090B';
     roundRectPath(ctx, x + (w-iw)/2, y + w*0.026, iw, ih, ih/2);
     ctx.fill();
     ctx.restore();
-  } else if(S.frame === 'android'){
+  } else if(frame === 'android'){
     ctx.save();
     ctx.fillStyle = '#08090B';
     ctx.beginPath();
@@ -792,8 +911,10 @@ function drawFrameDetail(ctx, x, y, w, h){
   }
 }
 
-function render(ctx, W, H, slide, idx, total){
+function render(ctx, W, H, slide, idx, total, preset){
   idx = idx || 0; total = total || 1;
+  const policy = policyFor(preset);
+  const frame = policy.frame;
   ctx.save();
   ctx.clearRect(0,0,W,H);
 
@@ -894,8 +1015,8 @@ function render(ctx, W, H, slide, idx, total){
       const ratio = img.naturalHeight / img.naturalWidth;
       const maxW = W * S.imgw/100;
       let iw = maxW, ih = iw * ratio, clip = false;
-      const bez = S.frame === 'none' ? 0 : (S.frame === 'ios' ? 0.034 : 0.026);
-      const framed = S.frame !== 'none' && S.fit !== 'bleed';
+      const bez = frame === 'none' ? 0 : (frame === 'ios' ? 0.034 : 0.026);
+      const framed = frame !== 'none' && S.fit !== 'bleed';
 
       if(framed){
         iw = Math.min(maxW/(1 + bez*2), avail/(ratio + bez*2));
@@ -905,16 +1026,25 @@ function render(ctx, W, H, slide, idx, total){
         else clip = true;
       }
 
+      const zoom = slide && slide.zoom != null ? slide.zoom / 100 : 1;
+      if(zoom !== 1){
+        iw *= zoom;
+        ih *= zoom;
+        if(zoom > 1) clip = false;
+      }
+
       const b = framed ? iw*bez : 0;
       const blockH = (clip ? avail : ih) + b*2;
       const ix = (W - iw)/2;
-      const iy = (S.fit === 'bleed' && clip) ? top : top + b + (avail - blockH)/2;
+      const lift = slide && slide.lift ? H * slide.lift / 100 : 0;
+      const iy = ((S.fit === 'bleed' && clip) ? top : top + b + (avail - blockH)/2) + lift;
       const r = W * S.radius/100;
 
       ctx.save();
-      if(S.tilt){
+      const tilt = slide && slide.tilt ? slide.tilt : 0;
+      if(tilt){
         ctx.translate(W/2, iy + (clip ? avail : ih)/2);
-        ctx.rotate(S.tilt * Math.PI/180);
+        ctx.rotate(tilt * Math.PI/180);
         ctx.translate(-W/2, -(iy + (clip ? avail : ih)/2));
       }
 
@@ -929,7 +1059,7 @@ function render(ctx, W, H, slide, idx, total){
         ctx.restore();
       }
 
-      if(framed) drawFrame(ctx, ix, iy, iw, ih, r);
+      if(framed) drawFrame(ctx, ix, iy, iw, ih, r, frame);
 
       ctx.save();
       roundRectPath(ctx, ix, iy, iw, clip ? avail : ih, r);
@@ -937,7 +1067,7 @@ function render(ctx, W, H, slide, idx, total){
       ctx.drawImage(img, ix, iy, iw, ih);
       ctx.restore();
 
-      if(framed) drawFrameDetail(ctx, ix, iy, iw, ih);
+      if(framed) drawFrameDetail(ctx, ix, iy, iw, ih, frame);
       ctx.restore();
     }
   }
@@ -949,7 +1079,14 @@ function render(ctx, W, H, slide, idx, total){
 function drawPreview(){
   const p = PRESETS[+$('previewsize').value] || PRESETS[0];
   preview.width = p.w; preview.height = p.h;
-  render(pctx, p.w, p.h, slides[current], current, Math.max(1, slides.length));
+  render(pctx, p.w, p.h, slides[current], current, Math.max(1, slides.length), p);
+  const note = $('preview-note');
+  const omit = policyFor(p).omit;
+  if(note){
+    note.hidden = !omit;
+    note.textContent = omit;
+  }
+  paintRules();
 }
 
 /* ---------- slides ---------- */
@@ -976,6 +1113,9 @@ function syncCaption(){
   const s = slides[current];
   $('title').value = s ? s.title : '';
   $('sub').value   = s ? s.sub : '';
+  setRange('tilt', s && s.tilt ? s.tilt : 0);
+  setRange('lift', s && s.lift ? s.lift : 0);
+  setRange('zoom', s && s.zoom != null ? s.zoom : 100);
 }
 
 function addFiles(fileList){
@@ -985,7 +1125,7 @@ function addFiles(fileList){
     const url = URL.createObjectURL(f);
     const img = new Image();
     img.onload = () => {
-      slides.push({img, url, title:'', sub:''});
+      slides.push({img, url, title:'', sub:'', tilt:0, lift:0, zoom:100});
       if(--pending === 0){ current = slides.length - 1; syncCaption(); paintSlides(); drawPreview(); }
     };
     img.onerror = () => { if(--pending === 0){ paintSlides(); drawPreview(); } };
@@ -1019,15 +1159,17 @@ function paintSizes(){
       const l = document.createElement('label');
       l.className = 'chip';
       l.dataset.on = p.on;
+      const need = reqLabel(p);
       l.innerHTML = `<input type="checkbox" ${p.on ? 'checked' : ''}>
         <span>${p.label}</span><small>${p.w}×${p.h}</small>
-        ${p.req ? '<span class="req">required</span>' : ''}`;
-      l.querySelector('input').onchange = e => { p.on = e.target.checked; l.dataset.on = p.on; };
+        ${need ? `<span class="req">${need}</span>` : ''}`;
+      l.querySelector('input').onchange = e => { p.on = e.target.checked; l.dataset.on = p.on; paintSizes(); drawPreview(); };
       chips.appendChild(l);
     });
     sec.appendChild(chips);
     wrapEl.appendChild(sec);
   });
+  paintRules();
 }
 
 /* ---------- export ---------- */
@@ -1067,7 +1209,7 @@ async function exportAll(){
   for(const p of chosen){
     for(let i = 0; i < slides.length; i++){
       c.width = p.w; c.height = p.h;
-      render(ctx, p.w, p.h, slides[i], i, slides.length);
+      render(ctx, p.w, p.h, slides[i], i, slides.length, p);
       const blob = await canvasBlob(c);
       const name = `${String(i+1).padStart(2,'0')}_${p.w}x${p.h}.${ext}`;
       if(zip) zip.file(`${p.dir}/${name}`, blob);
@@ -1109,7 +1251,7 @@ function pick(id, key){ $(id).oninput = () => { S[key] = $(id).value; drawPrevie
 
 seg('pos','pos'); seg('align','align'); seg('bgmode','bgmode'); seg('fit','fit');
 seg('caps','caps');
-seg('fmt','fmt', () => {});
+seg('fmt','fmt', paintRules);
 range('tsize','tsize'); range('ssize','ssize'); range('imgw','imgw');
 range('radius','radius'); range('pad','pad'); range('gap','gap');
 range('track','track'); range('lh','lh');
@@ -1170,7 +1312,17 @@ $('shadow').onchange = e => {
 
 /* ---------- flourishes ---------- */
 
-range('tilt','tilt');
+function slideRange(id, key){
+  $(id).oninput = () => {
+    const v = +$(id).value;
+    $(id + '-v').textContent = $(id).value;
+    if(slides[current]) slides[current][key] = v;
+    drawPreview();
+  };
+}
+slideRange('tilt','tilt');
+slideRange('lift','lift');
+slideRange('zoom','zoom');
 pick('accent','accent'); pick('framecolor','framecolor');
 $('frame').onchange   = () => { S.frame   = $('frame').value;   drawPreview(); };
 $('pattern').onchange = () => { S.pattern = $('pattern').value; drawPreview(); };
@@ -1233,7 +1385,8 @@ $('surprise').onclick = () => {
     name: t.name
   });
   const tilt = [0,0,-4,4,-7,7][Math.floor(Math.random()*6)];
-  S.tilt = tilt; setRange('tilt', tilt);
+  if(slides[current]) slides[current].tilt = tilt;
+  setRange('tilt', tilt);
   drawPreview();
 };
 
@@ -1243,7 +1396,7 @@ $('sub').oninput   = () => { if(slides[current]){ slides[current].sub   = $('sub
 $('dup').onclick = () => {
   const s = slides[current];
   if(!s) return;
-  slides.splice(current+1, 0, {img:s.img, url:s.url, title:s.title, sub:s.sub});
+  slides.splice(current+1, 0, {img:s.img, url:s.url, title:s.title, sub:s.sub, tilt:s.tilt || 0, lift:s.lift || 0, zoom:s.zoom != null ? s.zoom : 100});
   current++; paintSlides(); syncCaption(); drawPreview();
 };
 $('del').onclick = () => {
