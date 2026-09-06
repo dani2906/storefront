@@ -9,7 +9,7 @@
 <link rel="canonical" href="https://dani2906.github.io/storefront/">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="author" content="dani2906">
-<meta name="theme-color" content="#EFF2F5">
+<meta name="theme-color" content="#F4EFE8">
 
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Storefront">
@@ -26,7 +26,7 @@
 <meta name="twitter:description" content="Resize app screenshots to every store dimension, add captions and device frames, export as a zip. No signup.">
 <meta name="twitter:image" content="https://dani2906.github.io/storefront/og.png">
 
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23101519'/%3E%3Crect x='20' y='12' width='24' height='40' rx='6' fill='%23fff'/%3E%3Crect x='27' y='16' width='10' height='3' rx='1.5' fill='%23101519'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23E25A3C'/%3E%3Crect x='20' y='12' width='24' height='40' rx='6' fill='%23FFFCF8'/%3E%3Crect x='27' y='16' width='10' height='3' rx='1.5' fill='%23E25A3C'/%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="og.png">
 
 <script type="application/ld+json">
@@ -85,25 +85,28 @@
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --paper:#E9ECEF;
-  --panel:#FFFFFF;
-  --ink:#101519;
-  --muted:#6B7682;
-  --line:#D3D9DF;
-  --accent:#C2185B;
-  --accent-soft:#FDE7EF;
-  --ok:#1B7F5A;
-  --radius:10px;
+  --paper:#F4EFE8;
+  --panel:#FFFCF8;
+  --ink:#2A2420;
+  --muted:#7A7068;
+  --line:#E4D9CE;
+  --accent:#E25A3C;
+  --accent-soft:#FDE8E1;
+  --ok:#2F8A64;
+  --radius:16px;
+  --shadow:0 1px 2px rgba(42,36,32,.04), 0 10px 28px rgba(42,36,32,.06);
   --sans:'Archivo', ui-sans-serif, system-ui, sans-serif;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{
-  background:var(--paper);
+  background:
+    radial-gradient(1200px 420px at 8% -10%, rgba(226,90,60,.08), transparent 55%),
+    var(--paper);
   color:var(--ink);
   font-family:var(--sans);
   font-size:15px;
-  line-height:1.45;
+  line-height:1.5;
   -webkit-font-smoothing:antialiased;
   height:100dvh;
   overflow:hidden;
@@ -111,17 +114,36 @@ body{
   flex-direction:column;
 }
 a{color:var(--accent)}
+button,input,select,textarea,.drop,.chip{transition:border-color .15s ease, background .15s ease, color .15s ease, box-shadow .15s ease}
 header{
-  padding:22px 24px 18px;
+  padding:20px 24px 16px;
   border-bottom:1px solid var(--line);
-  display:flex;flex-wrap:wrap;gap:14px;align-items:baseline;justify-content:space-between;
+  display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;
   flex:0 0 auto;
+  background:rgba(255,252,248,.72);
 }
+.brand{display:flex;gap:12px;align-items:center}
+.mark{
+  flex:0 0 auto;width:40px;height:40px;border-radius:12px;
+  background:var(--accent);box-shadow:0 6px 16px rgba(226,90,60,.28);
+  position:relative;
+}
+.mark::before,.mark::after{content:'';position:absolute;left:50%;transform:translateX(-50%);background:var(--panel)}
+.mark::before{top:8px;width:16px;height:26px;border-radius:5px}
+.mark::after{top:10px;width:7px;height:2px;border-radius:1px;background:var(--accent)}
 h1{
-  margin:0;font-size:23px;font-weight:700;
-  font-stretch:118%;letter-spacing:-.015em;
+  margin:0;font-size:22px;font-weight:700;
+  font-stretch:112%;letter-spacing:-.02em;
 }
-header p{margin:0;color:var(--muted);font-size:13.5px;max-width:46ch}
+header p{margin:2px 0 0;color:var(--muted);font-size:13.5px;max-width:48ch}
+.header-tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+header .seg{flex:0 0 196px}
+header .status{
+  font-size:12.5px;color:var(--ink);
+  background:var(--panel);border:1px solid var(--line);
+  border-radius:999px;padding:7px 12px;
+  box-shadow:var(--shadow);
+}
 main{
   display:grid;
   grid-template-columns:minmax(320px,400px) 1fr;
@@ -131,7 +153,7 @@ main{
   min-height:0;
 }
 .controls{
-  padding:20px 24px 60px;
+  padding:18px 20px 56px;
   border-right:1px solid var(--line);
   height:100%;
   overflow-y:auto;
@@ -143,11 +165,6 @@ main{
   overflow-y:auto;
   overscroll-behavior:contain;
 }
-.stage .preview-wrap{
-  position:sticky;
-  top:0;
-  z-index:2;
-}
 @media (max-width:900px){
   body{height:auto;overflow:visible;display:block}
   main{grid-template-columns:1fr;display:block}
@@ -156,137 +173,158 @@ main{
     height:auto;overflow:visible;
   }
   .stage{height:auto;overflow:visible}
-  .stage .preview-wrap{position:static}
 }
-fieldset{border:none;margin:0 0 22px;padding:0}
+fieldset{
+  border:1px solid var(--line);margin:0 0 14px;padding:14px 15px 16px;
+  border-radius:var(--radius);background:var(--panel);box-shadow:var(--shadow);
+}
 legend{
-  font-size:12.5px;font-weight:600;color:var(--muted);
-  font-stretch:112%;padding:0 0 8px;
+  font-size:13px;font-weight:650;color:var(--ink);
+  font-stretch:108%;padding:0 6px;margin-left:-2px;
 }
-label{display:block;font-size:13px;color:var(--muted);margin:0 0 4px}
+label{display:block;font-size:13px;color:var(--muted);margin:0 0 5px}
 input[type=text],textarea,select{
-  width:100%;padding:8px 10px;font:inherit;font-size:14px;
-  border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);
+  width:100%;padding:9px 11px;font:inherit;font-size:14px;
+  border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);
 }
+input[type=text]:hover,textarea:hover,select:hover{border-color:#D2C4B6}
 textarea{resize:vertical;min-height:56px}
 input:focus,textarea:focus,select:focus,button:focus-visible{
-  outline:2px solid var(--accent);outline-offset:1px;
+  outline:2px solid var(--accent);outline-offset:2px;
 }
 .row{display:flex;gap:10px;margin-bottom:12px}
 .row>*{flex:1;min-width:0}
 .drop{
-  border:1.5px dashed var(--line);border-radius:var(--radius);
-  background:var(--panel);padding:22px 16px;text-align:center;cursor:pointer;
-  color:var(--muted);font-size:13.5px;
+  border:2px dashed #D8C9BA;border-radius:14px;
+  background:#FFF8F2;padding:26px 16px;text-align:center;cursor:pointer;
+  color:var(--muted);font-size:14px;line-height:1.45;
 }
-.drop.hot{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
-.slides{display:flex;gap:8px;overflow-x:auto;padding:10px 0 4px}
+.drop strong{display:block;color:var(--ink);font-size:15.5px;margin-bottom:4px}
+.drop:hover,.drop.hot{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+.empty-preview{
+  text-align:center;color:var(--muted);font-size:13.5px;margin:10px 0 0;
+}
+.empty-preview[hidden]{display:none}
+.slides{display:flex;gap:8px;overflow-x:auto;padding:12px 0 4px}
 .slides button{
-  flex:0 0 auto;width:52px;height:96px;border-radius:8px;border:1.5px solid var(--line);
+  flex:0 0 auto;width:52px;height:96px;border-radius:10px;border:1.5px solid var(--line);
   background:var(--panel) center/cover no-repeat;padding:0;cursor:pointer;position:relative;
 }
-.slides button[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.slides button[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 .slides .add{display:grid;place-items:center;font-size:22px;color:var(--muted);border-style:dashed}
+.slides .add:hover{color:var(--ink);border-color:var(--accent)}
 .slides .num{
-  position:absolute;left:3px;top:3px;background:rgba(16,21,25,.72);color:#fff;
-  font-size:10px;line-height:1;padding:3px 4px;border-radius:4px;
+  position:absolute;left:3px;top:3px;background:rgba(42,36,32,.7);color:#fff;
+  font-size:10px;line-height:1;padding:3px 5px;border-radius:6px;
 }
 button.act{
-  font:inherit;font-size:14px;font-weight:600;padding:10px 14px;border-radius:8px;
+  font:inherit;font-size:14px;font-weight:600;padding:11px 16px;border-radius:999px;
   border:1px solid var(--ink);background:var(--ink);color:#fff;cursor:pointer;
 }
 button.act.ghost{background:transparent;color:var(--ink)}
-button.act.go{background:var(--accent);border-color:var(--accent)}
-button.act[disabled]{opacity:.45;cursor:not-allowed}
+button.act.go{background:var(--accent);border-color:var(--accent);box-shadow:0 8px 18px rgba(226,90,60,.22)}
+button.act.go:hover{filter:brightness(1.04)}
+button.act[disabled]{opacity:.45;cursor:not-allowed;box-shadow:none}
 button.tiny{
-  font:inherit;font-size:12.5px;padding:5px 9px;border-radius:7px;
-  border:1px solid var(--line);background:var(--panel);cursor:pointer;color:var(--muted);
+  font:inherit;font-size:12.5px;padding:6px 10px;border-radius:999px;
+  border:1px solid var(--line);background:#fff;cursor:pointer;color:var(--muted);
 }
-.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel)}
+button.tiny:hover{color:var(--ink);border-color:#D2C4B6}
+.seg{
+  display:flex;gap:3px;border:1px solid var(--line);border-radius:999px;
+  padding:3px;background:#fff;
+}
 .seg button{
-  flex:1;font:inherit;font-size:13px;padding:7px 4px;border:none;background:transparent;
-  cursor:pointer;color:var(--muted);
+  flex:1;font:inherit;font-size:13px;padding:7px 8px;border:none;background:transparent;
+  cursor:pointer;color:var(--muted);border-radius:999px;
 }
+.seg button:hover{color:var(--ink)}
 .seg button[aria-pressed=true]{background:var(--ink);color:#fff}
 input[type=range]{width:100%;accent-color:var(--accent)}
 input[type=color]{
-  width:100%;height:34px;padding:2px;border:1px solid var(--line);border-radius:8px;background:var(--panel);
+  width:100%;height:36px;padding:3px;border:1px solid var(--line);border-radius:10px;background:#fff;
 }
 .preview-wrap{
-  background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
-  padding:18px;display:flex;justify-content:center;
+  background:var(--panel);border:1px solid var(--line);border-radius:20px;
+  padding:22px;display:flex;justify-content:center;box-shadow:var(--shadow);
 }
 #preview{
   max-height:52vh;max-width:100%;height:auto;width:auto;
-  box-shadow:0 8px 30px rgba(16,21,25,.16);border-radius:2px;
+  box-shadow:0 14px 40px rgba(42,36,32,.14);border-radius:6px;
 }
 .sizes{margin-top:22px}
 .sizegroup{margin-bottom:14px}
 .sizegroup h3{
-  margin:0 0 6px;font-size:13px;font-weight:600;font-stretch:112%;
+  margin:0 0 8px;font-size:13px;font-weight:650;font-stretch:108%;
   display:flex;align-items:center;gap:10px;
 }
 .sizegroup h3 button{margin-left:auto}
 .chips{display:flex;flex-wrap:wrap;gap:7px}
 .chip{
   display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
-  border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer;color:var(--muted);
+  border-radius:999px;padding:6px 11px;font-size:13px;cursor:pointer;color:var(--muted);
 }
+.chip:hover{border-color:#D2C4B6;color:var(--ink)}
 .chip input{accent-color:var(--accent);margin:0}
-.chip[data-on=true]{color:var(--ink);border-color:#9AA5B1}
+.chip[data-on=true]{color:var(--ink);border-color:#C9B7A8;background:#fff}
+.chip[data-blocked=true],.chip:has(input:disabled){
+  opacity:.5;cursor:not-allowed;pointer-events:none;
+}
 .chip small{font-variant-numeric:tabular-nums;opacity:.7}
 .chip .req{color:var(--accent);font-size:11px;font-weight:600}
 .rules{
-  margin-top:16px;padding:12px 14px;
+  margin-top:16px;padding:14px 16px;
   background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);
 }
 .rules h3{
-  margin:0 0 8px;font-size:13px;font-weight:600;font-stretch:112%;
+  margin:0 0 8px;font-size:13px;font-weight:650;font-stretch:108%;
 }
 .rules ul{margin:0;padding:0;list-style:none}
 .rules li{
-  position:relative;padding:3px 0 3px 18px;font-size:13px;color:var(--muted);
+  position:relative;padding:4px 0 4px 18px;font-size:13px;color:var(--muted);
 }
-.rules li::before{position:absolute;left:0;top:3px}
+.rules li::before{position:absolute;left:0;top:4px}
 .rules li.ok::before{content:'✓';color:var(--ok)}
-.rules li.ok{color:#1B7F5A}
+.rules li.ok{color:var(--ok)}
 .rules li.warn::before{content:'!';color:var(--accent);font-weight:700}
-.rules li.warn{color:#8A1848}
+.rules li.warn{color:#B5442C}
 .rules li.note::before{content:'·';color:var(--muted)}
 .exportbar{
   position:sticky;bottom:0;margin-top:18px;padding:14px 0 0;
-  background:linear-gradient(to top,var(--paper) 70%,rgba(233,236,239,0));
+  background:linear-gradient(to top,var(--paper) 70%,rgba(244,239,232,0));
   display:flex;gap:12px;align-items:center;flex-wrap:wrap;
 }
 .status{font-size:13px;color:var(--muted)}
 .status.done{color:var(--ok)}
 .note{font-size:12.5px;color:var(--muted);margin:8px 0 0}
-.hint{font-size:12.5px;color:var(--muted);margin:-4px 0 12px}
-.h1sub{font-size:14px;font-weight:400;font-stretch:100%;color:var(--muted);letter-spacing:0}
+.hint{font-size:12.5px;color:var(--muted);margin:6px 0 12px}
+.h1sub{display:block;font-size:13.5px;font-weight:400;font-stretch:100%;color:var(--muted);letter-spacing:0;margin-top:2px}
 .seo{
   margin:38px 0 10px;padding-top:26px;border-top:1px solid var(--line);
   max-width:70ch;color:var(--ink);
 }
-.seo h2{font-size:17px;font-stretch:112%;margin:26px 0 8px}
+.seo h2{font-size:17px;font-stretch:108%;margin:26px 0 8px}
 .seo h3{font-size:14.5px;margin:18px 0 4px}
-.seo p, .seo li{font-size:14px;color:#39424C;margin:0 0 10px}
+.seo p, .seo li{font-size:14px;color:#5A524B;margin:0 0 10px}
 .seo ol{padding-left:20px}
 .seo table{
   width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0 6px;
   background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
 }
-.seo th, .seo td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line)}
+.seo th, .seo td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line)}
 .seo th{font-weight:600;color:var(--muted);font-size:12.5px}
 .seo tr:last-child td{border-bottom:none}
 .seo td:nth-child(2){font-variant-numeric:tabular-nums;white-space:nowrap}
 .colophon{margin-top:24px;font-size:13px;color:var(--muted)}
 .themes{display:flex;flex-wrap:wrap;gap:7px}
 .themes button{
-  flex:0 0 auto;padding:0;border:1.5px solid var(--line);border-radius:8px;
+  flex:0 0 auto;padding:0;border:1.5px solid var(--line);border-radius:12px;
   cursor:pointer;overflow:hidden;background:none;width:64px;
 }
-.themes button[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
-.themes .sw{height:26px;display:block}
+.themes button:hover{border-color:#D2C4B6}
+.themes button[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.themes .sw{height:28px;display:block}
 .themes .nm{
   display:block;font:inherit;font-size:10.5px;padding:3px 2px;background:var(--panel);color:var(--muted);
 }
@@ -295,11 +333,20 @@ input[type=color]{
 <body>
 
 <header>
-  <div>
-    <h1>Storefront <span class="h1sub">— App Store &amp; Google Play screenshot generator</span></h1>
-    <p>Drop in a screenshot, write the caption, export every size the App Store and Google Play accept. Free, and nothing leaves your browser.</p>
+  <div class="brand">
+    <span class="mark" aria-hidden="true"></span>
+    <div>
+      <h1>Storefront</h1>
+      <p>Make store screenshots in your browser. Free, and they never leave this tab.</p>
+    </div>
   </div>
-  <div class="status" id="head-status">Everything runs in your browser. Nothing uploads anywhere.</div>
+  <div class="header-tools">
+    <div class="seg" id="store" role="group" aria-label="Store">
+      <button type="button" data-v="ios" aria-pressed="true">iOS</button>
+      <button type="button" data-v="android" aria-pressed="false">Android</button>
+    </div>
+    <div class="status" id="head-status">Stays on your computer. Nothing gets uploaded.</div>
+  </div>
 </header>
 
 <main>
@@ -308,12 +355,13 @@ input[type=color]{
     <fieldset>
       <legend>Screenshots</legend>
       <div class="drop" id="drop" tabindex="0" role="button">
-        Drop images here, click to choose, or paste from the clipboard
+        <strong>Add your screenshots</strong>
+        Drop them here, click to browse, or paste
       </div>
       <input type="file" id="file" accept="image/*" multiple hidden>
       <div class="slides" id="slides"></div>
       <div class="row" style="margin-top:4px">
-        <button class="tiny" id="dup">Duplicate</button>
+        <button class="tiny" id="dup">Make a copy</button>
         <button class="tiny" id="del">Remove</button>
       </div>
     </fieldset>
@@ -341,7 +389,7 @@ input[type=color]{
     </fieldset>
 
     <fieldset>
-      <legend>Type</legend>
+      <legend>Headline style</legend>
       <label for="font">Headline typeface</label>
       <select id="font"></select>
       <div style="height:10px"></div>
@@ -390,7 +438,7 @@ input[type=color]{
     </fieldset>
 
     <fieldset>
-      <legend>Canvas</legend>
+      <legend>Background</legend>
       <div class="row">
         <div>
           <label for="bg1">Background</label>
@@ -438,7 +486,7 @@ input[type=color]{
     </fieldset>
 
     <fieldset>
-      <legend>Flourishes</legend>
+      <legend>Finishing touches</legend>
 
       <label>Themes</label>
       <div class="themes" id="themes"></div>
@@ -449,7 +497,7 @@ input[type=color]{
           <label for="frame">Device frame</label>
           <select id="frame">
             <option value="none">None</option>
-            <option value="ios">iPhone</option>
+            <option value="ios" selected>iPhone</option>
             <option value="android">Android</option>
           </select>
         </div>
@@ -458,7 +506,7 @@ input[type=color]{
           <input type="color" id="framecolor" value="#1A1C20">
         </div>
       </div>
-      <p class="hint">Frames apply only where that store allows them — iPhone chrome on iPhone sizes, Android on Play phone. iPad, tablets and the feature graphic never get a phone bezel.</p>
+      <p class="hint">We’ll skip the frame on sizes that store would reject — iPad, tablets, and the Play feature graphic.</p>
 
       <div class="row">
         <div>
@@ -514,7 +562,7 @@ input[type=color]{
   <section class="stage">
     <div class="row" style="align-items:end;max-width:520px">
       <div>
-        <label for="previewsize">Previewing</label>
+        <label for="previewsize">Preview this size</label>
         <select id="previewsize"></select>
       </div>
       <div style="flex:0 0 auto">
@@ -525,20 +573,21 @@ input[type=color]{
     <div class="preview-wrap" style="margin-top:10px">
       <canvas id="preview" width="1320" height="2868"></canvas>
     </div>
+    <p class="empty-preview" id="empty-preview">Your screenshot will show up here</p>
     <p class="hint" id="preview-note" hidden></p>
 
     <div class="sizes" id="sizes"></div>
     <div class="rules" id="rules" hidden></div>
 
     <div class="exportbar">
-      <button class="act go" id="export">Export selected sizes</button>
+      <button class="act go" id="export">Download zip</button>
       <div class="seg" style="flex:0 0 200px" id="fmt">
         <button data-v="png" aria-pressed="true">PNG</button>
         <button data-v="jpeg" aria-pressed="false">JPEG</button>
       </div>
       <span class="status" id="status"></span>
     </div>
-    <p class="note">Both stores reject files with an alpha channel. PNG from a browser canvas is always 32-bit, so if App Store Connect or Play Console complains, re-export as JPEG — the background is opaque either way.</p>
+    <p class="note">If a store says the file has an alpha channel, download again as JPEG. Same picture, just a format they like better.</p>
 
     <div class="seo">
       <h2>App Store screenshot sizes</h2>
@@ -611,6 +660,7 @@ const PRESETS = [
   {g:'Google Play', dir:'Play/tablet-10', label:'10″ tablet', w:1600, h:2560, on:false, store:'play', kind:'tablet', slot:'tablet-10', frame:null},
   {g:'Google Play', dir:'Play/feature-graphic', label:'Feature graphic', w:1024, h:500, on:true, req:'feature', store:'play', kind:'feature', slot:'feature', frame:null},
 ];
+PRESETS.forEach(p => { p.def = p.on; });
 
 /* Apple 2.3.3 / 2.3.10 and Play Console preview-asset rules, applied per size. */
 const PLAY_CLAIM = /\b(best|#1|top|new|free|discount|sale|million downloads|download now|install now|play now|try now)\b/i;
@@ -653,7 +703,7 @@ const S = {
   pos:'top', align:'center', font:'Archivo', subfont:'', tsize:5.6, ssize:3.2, tweight:'600',
   tcolor:'#101519', bg1:'#EFF2F5', bg2:'#D8DEE5', bgmode:'solid', track:0, lh:1.16, caps:'none',
   imgw:78, radius:3.6, pad:7, gap:6, fit:'contain', shadow:true, fmt:'png',
-  frame:'none', framecolor:'#1A1C20', pattern:'none', accent:'#C2185B',
+  store:'ios', frame:'ios', framecolor:'#1A1C20', pattern:'none', accent:'#C2185B',
   badge:'', tshadow:false, continuous:true
 };
 
@@ -844,8 +894,10 @@ function paintRules(){
   else if(apple && has65) items.push(['ok', '6.5″ fallback is selected. Apple accepts this if you skip every 6.9″ size.']);
   else if(apple) items.push(['warn', 'Apple needs a 6.9″ set (1320×2868, 1290×2796 or 1260×2736), or 1284×2778 as a 6.5″ fallback.']);
 
-  if(apple && !chosen.some(p => p.kind === 'ipad'))
-    items.push(['note', 'Add a 13″ iPad size if the app runs on iPad. Apple does not scale iPhone screenshots to iPad.']);
+  if(apple && slides.length && ipadLockReason())
+    items.push(['warn', ipadLockReason()]);
+  else if(apple && !chosen.some(p => p.kind === 'ipad'))
+    items.push(['note', 'Add a 13″ iPad size if the app runs on iPad. Use iPad captures — Apple rejects iPhone UI on iPad sizes.']);
 
   if(play && chosen.some(p => p.kind === 'phone'))
     items.push(['ok', 'Play phone size is within 320–3840 px and the 2:1 aspect-ratio cap.']);
@@ -863,17 +915,23 @@ function paintRules(){
   if(S.fmt === 'png' && chosen.length)
     items.push(['warn', 'Both stores reject alpha channels. Browser PNG is 32-bit — switch to JPEG if upload is refused.']);
 
-  if(S.frame === 'ios' && chosen.some(p => policyFor(p).frame === 'none'))
-    items.push(['note', 'iPhone frame is left off iPad, tablet and Play sizes — a mismatched bezel is a common rejection.']);
-  if(S.frame === 'android' && chosen.some(p => policyFor(p).frame === 'none'))
-    items.push(['note', 'Android frame is left off App Store and tablet sizes. Apple rejects other-platform chrome (2.3.10).']);
+  if(S.frame !== 'none' && chosen.some(p => policyFor(p).frame === 'none')){
+    const skipped = [...new Set(chosen.filter(p => policyFor(p).frame === 'none').map(p => {
+      if(p.kind === 'feature') return 'the feature graphic';
+      if(p.kind === 'ipad') return 'iPad sizes';
+      if(p.kind === 'tablet') return 'tablet sizes';
+      return 'sizes this store would refuse';
+    }))];
+    const which = S.frame === 'ios' ? 'iPhone' : 'Android';
+    items.push(['note', `${which} frame is left off ${skipped.join(' and ')}.`]);
+  }
 
   const claims = playClaims();
   if(play && claims.length)
     items.push(['warn', `Play discourages ranking or promo copy (“${claims.join('”, “')}”) on screenshots and the feature graphic.`]);
 
   box.hidden = !items.length;
-  box.innerHTML = `<h3>What the stores allow</h3><ul>${items.map(([k,t]) => `<li class="${k}">${t}</li>`).join('')}</ul>`;
+  box.innerHTML = `<h3>A quick store check</h3><ul>${items.map(([k,t]) => `<li class="${k}">${t}</li>`).join('')}</ul>`;
 }
 
 /* Bezel drawn behind the screenshot; the screenshot itself stays untouched. */
@@ -1086,6 +1144,8 @@ function drawPreview(){
     note.hidden = !omit;
     note.textContent = omit;
   }
+  const empty = $('empty-preview');
+  if(empty) empty.hidden = !!slides.length;
   paintRules();
 }
 
@@ -1126,18 +1186,97 @@ function addFiles(fileList){
     const img = new Image();
     img.onload = () => {
       slides.push({img, url, title:'', sub:'', tilt:0, lift:0, zoom:100});
-      if(--pending === 0){ current = slides.length - 1; syncCaption(); paintSlides(); drawPreview(); }
+      if(--pending === 0){ current = slides.length - 1; syncCaption(); paintSlides(); syncIpadAvailability(); drawPreview(); }
     };
-    img.onerror = () => { if(--pending === 0){ paintSlides(); drawPreview(); } };
+    img.onerror = () => { if(--pending === 0){ paintSlides(); syncIpadAvailability(); drawPreview(); } };
     img.src = url;
   });
 }
 
 /* ---------- size checklist ---------- */
 
+function storeId(){
+  return S.store === 'android' ? 'play' : 'apple';
+}
+
+function slideRatio(s){
+  const img = s && s.img;
+  if(!img || !img.naturalWidth) return 0;
+  return img.naturalHeight / img.naturalWidth;
+}
+
+function isPhoneShot(s){
+  const r = slideRatio(s);
+  if(!r) return false;
+  const tall = r >= 1 ? r : 1 / r;
+  return tall >= 1.7;
+}
+
+function isTabletShot(s){
+  const r = slideRatio(s);
+  if(!r) return false;
+  const tall = r >= 1 ? r : 1 / r;
+  return tall > 1.15 && tall < 1.6;
+}
+
+function ipadLockReason(){
+  if(!slides.length) return 'iPad sizes need iPad screenshots. Apple does not accept iPhone UI on those sizes.';
+  if(!slides.some(isTabletShot)) return 'These screenshots look like iPhone. Capture the iPad layout to export iPad sizes.';
+  return '';
+}
+
+function canExportIpad(){
+  return !ipadLockReason();
+}
+
+function syncIpadAvailability(){
+  if(!canExportIpad()) PRESETS.forEach(p => { if(p.kind === 'ipad') p.on = false; });
+  paintSizes();
+}
+
+function primaryPresetIndex(){
+  if(S.store === 'android'){
+    const phone = PRESETS.findIndex(p => p.store === 'play' && p.slot === 'phone');
+    return phone >= 0 ? phone : PRESETS.findIndex(p => p.store === 'play');
+  }
+  const main = PRESETS.findIndex(p => p.store === 'apple' && p.slot === '6.9' && p.on);
+  return main >= 0 ? main : PRESETS.findIndex(p => p.store === 'apple');
+}
+
+function paintPreviewSizes(){
+  const psel = $('previewsize');
+  if(!psel) return;
+  const keep = PRESETS[+$('previewsize').value];
+  psel.innerHTML = '';
+  const id = storeId();
+  PRESETS.forEach((p, i) => {
+    if(p.store !== id) return;
+    const o = document.createElement('option');
+    o.value = i;
+    o.textContent = `${p.label} — ${p.w}×${p.h}`;
+    psel.appendChild(o);
+  });
+  const mine = PRESETS.map((p, i) => ({p, i})).filter(x => x.p.store === id);
+  const pick = mine.find(x => x.p === keep && keep.store === id)
+    || mine.find(x => x.i === primaryPresetIndex())
+    || mine[0];
+  if(pick) psel.value = String(pick.i);
+}
+
+function applyStore(){
+  const id = storeId();
+  PRESETS.forEach(p => { p.on = p.store === id ? p.def : false; });
+  S.frame = S.store === 'android' ? 'android' : 'ios';
+  if($('frame')) $('frame').value = S.frame;
+  paintPreviewSizes();
+  paintSizes();
+  drawPreview();
+}
+
 function paintSizes(){
   const wrapEl = $('sizes');
-  const groups = [...new Set(PRESETS.map(p => p.g))];
+  const id = storeId();
+  const groups = [...new Set(PRESETS.filter(p => p.store === id).map(p => p.g))];
   wrapEl.innerHTML = '';
   groups.forEach(g => {
     const sec = document.createElement('div');
@@ -1145,8 +1284,14 @@ function paintSizes(){
     const h = document.createElement('h3');
     h.textContent = g;
     const all = document.createElement('button');
-    all.className = 'tiny'; all.textContent = 'Select all';
+    all.className = 'tiny'; all.textContent = 'All of these';
+    const ipadLocked = PRESETS.some(p => p.g === g && p.kind === 'ipad') && !canExportIpad();
+    if(ipadLocked){
+      all.disabled = true;
+      all.title = ipadLockReason();
+    }
     all.onclick = () => {
+      if(ipadLocked) return;
       PRESETS.forEach((p,i) => { if(p.g === g) p.on = true; });
       paintSizes();
     };
@@ -1156,17 +1301,30 @@ function paintSizes(){
     chips.className = 'chips';
     PRESETS.forEach((p, i) => {
       if(p.g !== g) return;
+      const blocked = p.kind === 'ipad' && !canExportIpad();
       const l = document.createElement('label');
       l.className = 'chip';
       l.dataset.on = p.on;
+      if(blocked){
+        p.on = false;
+        l.dataset.on = false;
+        l.dataset.blocked = true;
+        l.title = ipadLockReason();
+      }
       const need = reqLabel(p);
-      l.innerHTML = `<input type="checkbox" ${p.on ? 'checked' : ''}>
+      l.innerHTML = `<input type="checkbox" ${p.on ? 'checked' : ''} ${blocked ? 'disabled' : ''}>
         <span>${p.label}</span><small>${p.w}×${p.h}</small>
         ${need ? `<span class="req">${need}</span>` : ''}`;
       l.querySelector('input').onchange = e => { p.on = e.target.checked; l.dataset.on = p.on; paintSizes(); drawPreview(); };
       chips.appendChild(l);
     });
     sec.appendChild(chips);
+    if(ipadLocked){
+      const note = document.createElement('p');
+      note.className = 'hint';
+      note.textContent = ipadLockReason();
+      sec.appendChild(note);
+    }
     wrapEl.appendChild(sec);
   });
   paintRules();
@@ -1189,10 +1347,10 @@ function saveBlob(blob, name){
 }
 
 async function exportAll(){
-  const chosen = PRESETS.filter(p => p.on);
+  const chosen = PRESETS.filter(p => p.on && (p.kind !== 'ipad' || canExportIpad()));
   const st = $('status');
-  if(!slides.length){ st.className = 'status'; st.textContent = 'Add a screenshot first.'; return; }
-  if(!chosen.length){ st.className = 'status'; st.textContent = 'Tick at least one size.'; return; }
+  if(!slides.length){ st.className = 'status'; st.textContent = 'Add a screenshot first — drop one on the left.'; return; }
+  if(!chosen.length){ st.className = 'status'; st.textContent = 'Pick at least one size below.'; return; }
 
   $('export').disabled = true;
   st.className = 'status'; st.textContent = 'Loading fonts…';
@@ -1204,12 +1362,17 @@ async function exportAll(){
   const zip = window.JSZip ? new JSZip() : null;
   const c = document.createElement('canvas');
   const ctx = c.getContext('2d');
-  let done = 0, total = chosen.length * slides.length;
+  let done = 0, total = chosen.reduce((n, p) => {
+    const batch = p.kind === 'ipad' ? slides.filter(isTabletShot) : slides;
+    return n + batch.length;
+  }, 0);
 
   for(const p of chosen){
-    for(let i = 0; i < slides.length; i++){
+    const batch = p.kind === 'ipad' ? slides.filter(isTabletShot) : slides;
+    if(!batch.length) continue;
+    for(let i = 0; i < batch.length; i++){
       c.width = p.w; c.height = p.h;
-      render(ctx, p.w, p.h, slides[i], i, slides.length, p);
+      render(ctx, p.w, p.h, batch[i], i, batch.length, p);
       const blob = await canvasBlob(c);
       const name = `${String(i+1).padStart(2,'0')}_${p.w}x${p.h}.${ext}`;
       if(zip) zip.file(`${p.dir}/${name}`, blob);
@@ -1227,7 +1390,7 @@ async function exportAll(){
     saveBlob(out, 'store-screenshots.zip');
   }
   st.className = 'status done';
-  st.textContent = `${total} image${total>1?'s':''} exported.`;
+  st.textContent = `All set — ${total} screenshot${total>1?'s':''} ready.`;
   $('export').disabled = false;
 }
 
@@ -1252,6 +1415,7 @@ function pick(id, key){ $(id).oninput = () => { S[key] = $(id).value; drawPrevie
 seg('pos','pos'); seg('align','align'); seg('bgmode','bgmode'); seg('fit','fit');
 seg('caps','caps');
 seg('fmt','fmt', paintRules);
+seg('store','store', applyStore);
 range('tsize','tsize'); range('ssize','ssize'); range('imgw','imgw');
 range('radius','radius'); range('pad','pad'); range('gap','gap');
 range('track','track'); range('lh','lh');
@@ -1397,13 +1561,13 @@ $('dup').onclick = () => {
   const s = slides[current];
   if(!s) return;
   slides.splice(current+1, 0, {img:s.img, url:s.url, title:s.title, sub:s.sub, tilt:s.tilt || 0, lift:s.lift || 0, zoom:s.zoom != null ? s.zoom : 100});
-  current++; paintSlides(); syncCaption(); drawPreview();
+  current++; paintSlides(); syncCaption(); syncIpadAvailability(); drawPreview();
 };
 $('del').onclick = () => {
   if(!slides.length) return;
   slides.splice(current, 1);
   current = Math.max(0, current-1);
-  paintSlides(); syncCaption(); drawPreview();
+  paintSlides(); syncCaption(); syncIpadAvailability(); drawPreview();
 };
 $('prev').onclick = () => { if(slides.length){ current = (current-1+slides.length)%slides.length; paintSlides(); syncCaption(); drawPreview(); } };
 $('next').onclick = () => { if(slides.length){ current = (current+1)%slides.length; paintSlides(); syncCaption(); drawPreview(); } };
@@ -1421,16 +1585,10 @@ drop.addEventListener('drop', e => addFiles(e.dataTransfer.files));
 $('file').onchange = e => { addFiles(e.target.files); e.target.value = ''; };
 window.addEventListener('paste', e => { if(e.clipboardData?.files?.length) addFiles(e.clipboardData.files); });
 
-const psel = $('previewsize');
-PRESETS.forEach((p, i) => {
-  const o = document.createElement('option');
-  o.value = i; o.textContent = `${p.label} — ${p.w}×${p.h}`;
-  psel.appendChild(o);
-});
-psel.onchange = drawPreview;
+$('previewsize').onchange = drawPreview;
 $('export').onclick = exportAll;
 
-paintSizes();
+applyStore();
 paintSlides();
 paintThemes('Paper');
 applyWeightState();
